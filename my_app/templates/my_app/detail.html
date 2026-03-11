@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail - My App{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">
+                Detail Page #{{ item_id }}
+            </h2>
+            <a href="{% url 'my_app:index' %}" 
+               class="text-indigo-600 hover:text-indigo-800">
+                ← Back to Index
+            </a>
+        </div>
+
+        <div class="space-y-4">
+            <div class="bg-gray-50 p-4 rounded">
+                <h3 class="font-semibold text-gray-700 mb-2">Template Info:</h3>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• <strong>Template:</strong> my_app/templates/my_app/detail.html</li>
+                    <li>• <strong>View:</strong> my_app/views.py → detail_view()</li>
+                    <li>• <strong>URL:</strong> my_app/urls.py → 'detail/&lt;int:item_id&gt;/'</li>
+                </ul>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 p-4 rounded">
+                <h3 class="font-semibold text-green-800 mb-2">✓ This demonstrates:</h3>
+                <ul class="text-sm text-green-700 space-y-1">
+                    <li>• Template inheritance (extends base.html)</li>
+                    <li>• URL parameters (item_id = {{ item_id }})</li>
+                    <li>• TailwindCSS styling</li>
+                    <li>• Proper app structure</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

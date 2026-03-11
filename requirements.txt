@@ -1,0 +1,25 @@
+# Core Django
+Django==5.1.7
+djangorestframework==3.16.0
+
+# Database
+psycopg2-binary==2.9.10
+
+# Environment variables
+python-dotenv==1.1.1
+
+# CORS headers for API
+django-cors-headers==4.7.0
+
+# TailwindCSS
+django-tailwind==3.8.0
+django-browser-reload==1.18.0
+
+# Static files for production
+whitenoise==6.10.0
+
+# Server for production
+gunicorn==23.0.0
+
+# Image processing
+Pillow==11.3.0
