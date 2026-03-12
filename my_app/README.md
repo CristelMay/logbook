@@ -49,7 +49,7 @@ urlpatterns = [
 ]
 ```
 
-**duetify/urls.py:**
+**logbook/urls.py:**
 
 ```python
 path('my-app/', include('my_app.urls')),
@@ -105,7 +105,7 @@ python manage.py startapp your_app_name
 # 2. Create template structure
 mkdir -p your_app_name/templates/your_app_name
 
-# 3. Add to INSTALLED_APPS in duetify/settings.py
+# 3. Add to INSTALLED_APPS in logbook/settings.py
 INSTALLED_APPS = [
     # ...
     'your_app_name',
@@ -122,8 +122,8 @@ path('your-url/', include('your_app_name.urls')),
 
 To remove this sample app after learning:
 
-1. Remove from `INSTALLED_APPS` in `duetify/settings.py`
-2. Remove from `duetify/urls.py`
+1. Remove from `INSTALLED_APPS` in `logbook/settings.py`
+2. Remove from `logbook/urls.py`
 3. Delete the `my_app/` folder
 4. Remove the button from `theme/templates/home.html`
 

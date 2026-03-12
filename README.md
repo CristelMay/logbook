@@ -1,4 +1,4 @@
-# Duetify - Django Project Template
+# logbook - Django Project Template
 
 A clean, modern Django boilerplate with TailwindCSS, PostgreSQL support, Django REST Framework, and production-ready configurations.
 
@@ -137,7 +137,7 @@ python manage.py tailwind start
 ```
 django-template/
 │
-├── duetify/                # Project configuration package
+├── logbook/                # Project configuration package
 │   ├── __init__.py
 │   ├── settings.py        # Django settings
 │   ├── urls.py            # URL routing
@@ -185,7 +185,7 @@ python manage.py startapp your_app_name
 
 Then:
 
-1. Add the app to `INSTALLED_APPS` in `duetify/settings.py`
+1. Add the app to `INSTALLED_APPS` in `logbook/settings.py`
 2. Create your models in `your_app_name/models.py`
 3. **Create templates** following Django's app structure:
    ```bash
@@ -193,7 +193,7 @@ Then:
    # Put your templates in: your_app_name/templates/your_app_name/
    ```
 4. Create URL patterns in `your_app_name/urls.py`
-5. Include app URLs in `duetify/urls.py`
+5. Include app URLs in `logbook/urls.py`
 
 **Why the double folder?** Django looks for templates in all apps' `templates/` folders. The extra app-name folder prevents naming conflicts between apps.
 
@@ -231,7 +231,7 @@ python manage.py collectstatic --noinput
 ### Using Gunicorn
 
 ```bash
-gunicorn duetify.wsgi:application
+gunicorn logbook.wsgi:application
 ```
 
 ### Environment Variables for Production
@@ -247,7 +247,7 @@ gunicorn duetify.wsgi:application
 This template is ready for:
 
 - **Render** - Uses `Aptfile` for system dependencies
-- **Heroku** - Add `Procfile` with: `web: gunicorn duetify.wsgi`
+- **Heroku** - Add `Procfile` with: `web: gunicorn logbook.wsgi`
 - **Railway** - Works out of the box
 - **DigitalOcean App Platform** - Configure build/run commands
 
@@ -325,7 +325,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ## 💡 Tips
 
 - Use `django-browser-reload` for automatic page refresh during development
-- Check `duetify/settings.py` for all available configurations
+- Check `logbook/settings.py` for all available configurations
 - Customize the base template in `theme/templates/base.html`
 - Add your custom CSS in `theme/static_src/src/styles.css`
 - Check out `my_app/` for a complete example of proper Django app structure
@@ -334,8 +334,8 @@ This project is open source and available under the [MIT License](LICENSE).
 
 The `my_app/` folder is a sample demonstrating proper app structure. To remove it:
 
-1. Delete from `INSTALLED_APPS` in `duetify/settings.py`
-2. Remove `path('my-app/', include('my_app.urls')),` from `duetify/urls.py`
+1. Delete from `INSTALLED_APPS` in `logbook/settings.py`
+2. Remove `path('my-app/', include('my_app.urls')),` from `logbook/urls.py`
 3. Delete the `my_app/` folder
 4. Remove the "View Sample App" button from `theme/templates/home.html`
 
