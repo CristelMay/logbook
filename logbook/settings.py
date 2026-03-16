@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     # Local apps
     'theme',
     'my_app',  # Sample app demonstrating structure
+    'registration',
     # Add your apps here
 ]
 
