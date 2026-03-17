@@ -1,0 +1,74 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}Logbook{% endblock %}</title>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+	{% tailwind_css %}
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center py-[10rem] px-[9rem]" style="background-image: url('{% static 'images/register-bg.svg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; font-family: 'Poppins', sans-serif;">
+	<div class="w-full max-w-[85rem] bg-white rounded-[4rem] shadow-2xl mt-8 mx-8 mb-16 p-16">
+		<div class="flex flex-col items-center mb-8">
+			<img src="{% static 'images/innodata-logo.png' %}" alt="Innodata Logo" class="h-[6rem] mt-[5rem]">
+			<h1 class="text-2xl sm:text-[65px] font-extrabold text-[#01469F] text-center mt-[5rem]">IKSI GUEST REGISTRATION</h1>
+			<p class="mt-2 text-center text-[25px] text-black-700 text-base font-medium mt-[5rem]">Welcome to Our Online Guest Registration Logbook.</p>
+		</div>
+		<div class="mb-6 text-black-600 text-[21px] text-center mt-[3rem]">
+			Thank you for visiting us! Please take a moment to complete the registration form below. Your information helps us maintain a secure and organized environment while ensuring that all guests receive the appropriate assistance during their visit. Rest assured, all details provided will be kept confidential and used solely for administrative and security purposes. We appreciate your cooperation and hope you have a pleasant experience with us.
+		</div>
+		<form class="bg-white rounded-[2rem] shadow p-6 border-2 border-black mt-[5rem] p-[4rem] shadow-md">
+			<h2 class="text-[33px] font-semibold text-black">Personal Information</h2>
+            <p class="text-[13px] text-gray-500 text-base font-normal mb-8">When you submit this form, it will not automatically collect your details like name and email address unless you provide it yourself.</p>
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<div>
+					<label class="block text-[21px] font-normal text-black mb-1">Last Name <span class="text-red-500">*</span></label>
+					<input type="text" class="w-full border-[2px] border-black rounded-[1.2rem] px-3 py-4 text-md mt-2" placeholder="e.g. Dela Cruz" required>
+				</div>
+				<div>
+					<label class="block text-[21px] font-normal text-black mb-1">First Name <span class="text-red-500">*</span></label>
+					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Juan" required>
+				</div>
+				<div class="flex flex-row gap-4 w-full">
+                    <div class="flex-1">
+                        <label class="block text-[21px] font-normal text-black mt-4 mb-1">MI</label>
+                        <input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="M">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[21px] font-normal text-black mt-4 mb-1">Suffix</label>
+                        <input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="Jr">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[21px] font-normal text-black mt-4 mb-1">
+                        Date of Visit <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" required>
+                </div>
+				<div class="sm:col-span-2">
+					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Your Company <span class="text-red-500">*</span></label>
+					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Innodata Knowledge Services, Inc." required>
+				</div>
+                <div class="sm:col-span-2">
+					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Purpose of Visit <span class="text-red-500">*</span></label>
+					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Consultation" required>
+				</div>
+				<div class="sm:col-span-2">
+					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Contact Information <span class="text-red-500">*</span></label>
+					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="0900 XXX XXXX" required>
+				</div>
+				<div class="sm:col-span-2">
+					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Contact Person in Innodata <span class="text-red-500">*</span></label>
+					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Maria Santos" required>
+				</div>
+			</div>
+			<p class="mt-4 text-[13px] text-gray-500">Please note that all fields marked with an asterisk (<span class='text-red-500'>*</span>) are required.</p>
+            <div class="flex w-full justify-end mt-8">
+                <button type="submit" class="bg-[#00459E] text-white font-bold text-[24px] rounded-[2rem] px-12 py-4 shadow-md hover:bg-blue-800 transition">Submit</button>
+            </div>
+		</form>
+	</div>
+</body>
+</html>

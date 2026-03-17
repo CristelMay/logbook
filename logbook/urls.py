@@ -32,6 +32,8 @@ urlpatterns = [
     
     # Add your app URLs here
     # path('api/', include('your_app.urls')),
+
+    path('registration/', include('registration.urls')),
 ]
 
 # Serve media files in development
