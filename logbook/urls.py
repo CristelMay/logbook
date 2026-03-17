@@ -16,27 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    
-    # Browser reload for development
-    path('__reload__/', include('django_browser_reload.urls')),
-    
-    # Sample app
-    path('my-app/', include('my_app.urls')),
-    
-    # Add your app URLs here
-    # path('api/', include('your_app.urls')),
-
+    path('', RedirectView.as_view(url='/registration/login/', permanent=True)),
     path('registration/', include('registration.urls')),
 ]
+
+if 'django_browser_reload' in settings.INSTALLED_APPS:
+    urlpatterns.append(path('__reload__/', include('django_browser_reload.urls')))
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
