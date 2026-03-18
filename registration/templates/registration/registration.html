@@ -1,4 +1,5 @@
 {% load static tailwind_tags %}
+{% static 'images/register-bg.svg' as register_bg %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +9,27 @@
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 	{% tailwind_css %}
 </head>
-<body class="min-h-screen flex flex-col justify-center items-center py-[10rem] px-[9rem]" style="background-image: url('{% static 'images/register-bg.svg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; font-family: 'Poppins', sans-serif;">
-	<div class="w-full max-w-[85rem] bg-white rounded-[4rem] shadow-2xl mt-8 mx-8 mb-16 p-16">
+<body class="min-h-screen flex flex-col justify-center items-center py-[10rem] px-[9rem] relative" style="font-family: 'Poppins', sans-serif;">
+	<div aria-hidden="true">
+		<img src="{{ register_bg }}" alt="" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -10; pointer-events: none;">
+	</div>
+	{% if messages %}
+	<div id="toast-container" class="px-4" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;">
+		<div onclick="dismissAllToasts()" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.25);"></div>
+		<div class="space-y-3" style="position: relative; width: 100%; max-width: 28rem;">
+		{% for message in messages %}
+		<div class="toast rounded-2xl border px-5 py-4 shadow-2xl bg-white {% if message.tags == 'success' %}border-green-300{% else %}border-slate-300{% endif %}" style="transform-origin: center;">
+			<div class="flex items-start gap-3">
+				<div class="mt-0.5 h-2.5 w-2.5 rounded-full {% if message.tags == 'success' %}bg-green-500{% else %}bg-slate-500{% endif %}"></div>
+				<p class="flex-1 text-base font-semibold text-slate-800">{{ message }}</p>
+				<button type="button" class="text-slate-500 hover:text-slate-700 text-xl leading-none" onclick="dismissToast(this)" aria-label="Close notification">&times;</button>
+			</div>
+		</div>
+		{% endfor %}
+		</div>
+	</div>
+	{% endif %}
+	<div class="w-full max-w-[85rem] bg-white rounded-[4rem] shadow-2xl mt-8 mx-8 mb-16 p-16 relative z-10">
 		<div class="flex flex-col items-center mb-8">
 			<img src="{% static 'images/innodata-logo.png' %}" alt="Innodata Logo" class="h-[6rem] mt-[5rem]">
 			<h1 class="text-2xl sm:text-[65px] font-extrabold text-[#01469F] text-center mt-[5rem]">IKSI GUEST REGISTRATION</h1>
@@ -19,26 +39,34 @@
 		<div class="mb-6 text-black-600 text-[21px] text-center mt-[3rem]">
 			Thank you for visiting us! Please take a moment to complete the registration form below. Your information helps us maintain a secure and organized environment while ensuring that all guests receive the appropriate assistance during their visit. Rest assured, all details provided will be kept confidential and used solely for administrative and security purposes. We appreciate your cooperation and hope you have a pleasant experience with us.
 		</div>
-		<form class="bg-white rounded-[2rem] shadow p-6 border-2 border-black mt-[5rem] p-[4rem] shadow-md">
+		<form method="post" action="{% url 'registration:register' %}" class="bg-white rounded-[2rem] shadow p-6 border-2 border-black mt-[5rem] p-[4rem] shadow-md">
+			{% csrf_token %}
+			{% if errors.non_field %}
+				<p class="mb-4 text-red-600 text-sm font-semibold">{{ errors.non_field }}</p>
+			{% endif %}
 			<h2 class="text-[33px] font-semibold text-black">Personal Information</h2>
             <p class="text-[13px] text-gray-500 text-base font-normal mb-8">When you submit this form, it will not automatically collect your details like name and email address unless you provide it yourself.</p>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				<div>
 					<label class="block text-[21px] font-normal text-black mb-1">Last Name <span class="text-red-500">*</span></label>
-					<input type="text" class="w-full border-[2px] border-black rounded-[1.2rem] px-3 py-4 text-md mt-2" placeholder="e.g. Dela Cruz" required>
+					<input type="text" name="lastname" value="{{ form_data.lastname|default:'' }}" class="w-full border-[2px] border-black rounded-[1.2rem] px-3 py-4 text-md mt-2" placeholder="e.g. Dela Cruz" required>
+					{% if errors.lastname %}<p class="mt-1 text-red-600 text-xs">{{ errors.lastname }}</p>{% endif %}
 				</div>
 				<div>
 					<label class="block text-[21px] font-normal text-black mb-1">First Name <span class="text-red-500">*</span></label>
-					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Juan" required>
+					<input type="text" name="firstname" value="{{ form_data.firstname|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Juan" required>
+					{% if errors.firstname %}<p class="mt-1 text-red-600 text-xs">{{ errors.firstname }}</p>{% endif %}
 				</div>
 				<div class="flex flex-row gap-4 w-full">
                     <div class="flex-1">
                         <label class="block text-[21px] font-normal text-black mt-4 mb-1">MI</label>
-                        <input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="M">
+						<input type="text" name="middle_initial" value="{{ form_data.middle_initial|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="M">
+						{% if errors.middle_initial %}<p class="mt-1 text-red-600 text-xs">{{ errors.middle_initial }}</p>{% endif %}
                     </div>
                     <div class="flex-1">
                         <label class="block text-[21px] font-normal text-black mt-4 mb-1">Suffix</label>
-                        <input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="Jr">
+						<input type="text" name="suffix" value="{{ form_data.suffix|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="Jr">
+						{% if errors.suffix %}<p class="mt-1 text-red-600 text-xs">{{ errors.suffix }}</p>{% endif %}
                     </div>
                 </div>
 
@@ -50,19 +78,28 @@
                 </div>
 				<div class="sm:col-span-2">
 					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Your Company <span class="text-red-500">*</span></label>
-					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Innodata Knowledge Services, Inc." required>
+					<input type="text" name="company_name" value="{{ form_data.company_name|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Innodata Knowledge Services, Inc." required>
+					{% if errors.company_name %}<p class="mt-1 text-red-600 text-xs">{{ errors.company_name }}</p>{% endif %}
 				</div>
                 <div class="sm:col-span-2">
 					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Purpose of Visit <span class="text-red-500">*</span></label>
-					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Consultation" required>
+					<input type="text" name="purpose_name" value="{{ form_data.purpose_name|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Consultation" required>
+					{% if errors.purpose_name %}<p class="mt-1 text-red-600 text-xs">{{ errors.purpose_name }}</p>{% endif %}
 				</div>
 				<div class="sm:col-span-2">
 					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Contact Information <span class="text-red-500">*</span></label>
-					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="0900 XXX XXXX" required>
+					<input type="text" name="contact_number" value="{{ form_data.contact_number|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="0900 XXX XXXX" required>
+					{% if errors.contact_number %}<p class="mt-1 text-red-600 text-xs">{{ errors.contact_number }}</p>{% endif %}
 				</div>
 				<div class="sm:col-span-2">
 					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Contact Person in Innodata <span class="text-red-500">*</span></label>
-					<input type="text" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Maria Santos" required>
+					<input type="text" name="contact_name" value="{{ form_data.contact_name|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Maria Santos" required>
+					{% if errors.contact_name %}<p class="mt-1 text-red-600 text-xs">{{ errors.contact_name }}</p>{% endif %}
+				</div>
+				<div class="sm:col-span-2">
+					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Email Address</label>
+					<input type="email" name="email" value="{{ form_data.email|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="juan@example.com">
+					{% if errors.email %}<p class="mt-1 text-red-600 text-xs">{{ errors.email }}</p>{% endif %}
 				</div>
 			</div>
 			<p class="mt-4 text-[13px] text-gray-500">Please note that all fields marked with an asterisk (<span class='text-red-500'>*</span>) are required.</p>
@@ -71,5 +108,39 @@
             </div>
 		</form>
 	</div>
+	<script>
+		function removeToastAndMaybeContainer(toast) {
+			if (!toast) {
+				return;
+			}
+			toast.classList.add('opacity-0', 'scale-95', 'transition', 'duration-300');
+			setTimeout(() => {
+				toast.remove();
+				const container = document.getElementById('toast-container');
+				if (container && container.querySelectorAll('.toast').length === 0) {
+					container.remove();
+				}
+			}, 300);
+		}
+
+		function dismissToast(closeButton) {
+			const toast = closeButton.closest('.toast');
+			removeToastAndMaybeContainer(toast);
+		}
+
+		function dismissAllToasts() {
+			document.querySelectorAll('.toast').forEach((toast) => {
+				removeToastAndMaybeContainer(toast);
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('.toast').forEach((toast) => {
+				setTimeout(() => {
+					removeToastAndMaybeContainer(toast);
+				}, 5000);
+			});
+		});
+	</script>
 </body>
 </html>

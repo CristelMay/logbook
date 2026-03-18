@@ -1,7 +1,35 @@
-from django.shortcuts import render
+from django.db import DatabaseError
+from django.contrib import messages
+from django.shortcuts import redirect, render
+
+from .services import create_guest_visit
+from .validators import validate_guest_registration_payload
 
 def registration_view(request):
-	return render(request, 'registration/registration.html')
+    context = {
+        'form_data': {},
+        'errors': {},
+    }
+
+    if request.method == 'POST':
+        cleaned_data, errors = validate_guest_registration_payload(request.POST)
+        context['form_data'] = request.POST
+        context['errors'] = errors
+
+        if not errors:
+            try:
+                create_guest_visit(cleaned_data)
+                messages.success(
+                    request,
+                    'Registration submitted successfully.'
+                )
+                return redirect('registration:register')
+            except DatabaseError:
+                context['errors']['non_field'] = (
+                    'Unable to save guest visit right now. Please try again.'
+                )
+
+    return render(request, 'registration/registration.html', context)
 
 def login_view(request):
     return render(request, 'registration/login.html')

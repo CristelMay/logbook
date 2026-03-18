@@ -14,6 +14,14 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+
+class DisableMigrations(dict):
+    def __contains__(self, item):
+        return True
+
+    def __getitem__(self, item):
+        return None
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -29,6 +37,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ENV = os.getenv('ENV', 'development')  # "development" or "production"
+USE_DJANGO_MIGRATIONS = os.getenv('USE_DJANGO_MIGRATIONS', 'false').lower() == 'true'
 
 if ENV == 'production':
     DEBUG = False
@@ -98,31 +107,23 @@ WSGI_APPLICATION = 'logbook.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Use SQLite for development, PostgreSQL for production
-if ENV == 'production':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT', '5432'),
-            'CONN_MAX_AGE': 0,
-            'OPTIONS': {
-                'client_encoding': 'UTF8',
-                'sslmode': 'require',
-                'connect_timeout': 10,
-            },
-        }
+# Supabase/PostgreSQL is the primary database for all environments.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'CONN_MAX_AGE': 0,
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+            'sslmode': os.getenv('DB_SSLMODE', 'require'),
+            'connect_timeout': int(os.getenv('DB_CONNECT_TIMEOUT', '10')),
+        },
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation
@@ -200,6 +201,11 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in development
 
 if not DEBUG:
     CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+
+# Database schema is managed externally (e.g. Supabase). Enable Django migrations
+# only when USE_DJANGO_MIGRATIONS=true is explicitly set.
+if not USE_DJANGO_MIGRATIONS:
+    MIGRATION_MODULES = DisableMigrations()
 
 # Django REST Framework
 REST_FRAMEWORK = {
