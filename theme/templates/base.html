@@ -7,31 +7,26 @@
     <title>{% block title %}logbook{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     {% tailwind_css %}
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-100" style="font-family: 'Poppins', sans-serif;">
-    <!-- <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <h1 class="text-xl font-bold text-gray-800">logbookkk</h1>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav> -->
+<body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
 
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <aside style="width: 300px; min-width: 300px; background-color: #00459E;" class="h-full">
+        <div class="flex flex-col h-full pt-6 pl-6 text-white">
+            <h1 class="text-2xl font-bold mb-16">Logbook</h1>
+            <nav class="flex flex-col gap-2 pr-0">
+                <a href="{% url 'dashboard:index' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full hover:bg-gray-100 hover:text-[#00459E] text-xl font-semibold"><i data-lucide="layout-dashboard" class="w-6 h-6"></i>Dashboard</a>
+                <a href="#" class="flex items-center gap-4 pl-6 py-4 rounded-l-full hover:bg-gray-100 hover:text-[#00459E] text-xl font-semibold"><i data-lucide="book-open" class="w-6 h-6"></i>Visitor Log</a>
+                <a href="#" class="flex items-center gap-4 pl-6 py-4 rounded-l-full hover:bg-gray-100 hover:text-[#00459E] text-xl font-semibold"><i data-lucide="users" class="w-6 h-6"></i>Lobby Personnel</a>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto py-6 px-8">
         {% block content %}
         {% endblock %}
     </main>
 
-    <footer class="bg-white shadow-lg mt-8">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-gray-500 text-sm">
-                &copy; {% now "Y" %} logbook. All rights reserved.
-            </p>
-        </div>
-    </footer>
+<script>lucide.createIcons();</script>
 </body>
 </html>
