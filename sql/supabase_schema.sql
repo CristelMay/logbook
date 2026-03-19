@@ -205,70 +205,129 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION create_guest_visit(
+    -- Guest info
     p_lastname VARCHAR,
-    p_firstname VARCHAR,
+    p_firstname VARCHAR, 
     p_middle_initial VARCHAR,
     p_suffix VARCHAR,
     p_contact VARCHAR,
     p_email VARCHAR,
-    p_company_id INT,
-    p_contact_id INT,
-    p_purpose_id INT,
+
+    -- Company
+    p_company_name VARCHAR,
+
+    -- Employee
+    p_contact_name VARCHAR,
+
+    -- Purpose
+    p_purpose_name VARCHAR
+)
+RETURNS INT
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    new_guest_id INT;
+    new_company_id INT;
+    new_contact_id INT;
+    new_purpose_id INT;
+    new_visit_id INT;
+BEGIN
+
+-- Insert guest
+INSERT INTO guest(
+    lastname,
+    firstname,
+    middle_initial,
+    suffix,
+    contact_number,
+    email
+)
+VALUES (
+    p_lastname,
+    p_firstname,
+    p_middle_initial,
+    p_suffix,
+    p_contact,
+    p_email
+)
+RETURNING guest_id INTO new_guest_id;
+
+-- Insert company (always new)
+IF p_company_name IS NULL THEN
+    RAISE EXCEPTION 'Company is required';
+END IF;
+
+INSERT INTO visitor_company(company_name)
+VALUES (p_company_name)
+RETURNING company_id INTO new_company_id;
+
+-- Insert employee (always new)
+IF p_contact_name IS NULL THEN
+    RAISE EXCEPTION 'Employee is required';
+END IF;
+
+INSERT INTO employee(full_name)
+VALUES (p_contact_name)
+RETURNING contact_id INTO new_contact_id;
+
+-- Insert purpose (always new)
+IF p_purpose_name IS NULL THEN
+    RAISE EXCEPTION 'Purpose is required';
+END IF;
+
+INSERT INTO visit_purpose(purpose_name)
+VALUES (p_purpose_name)
+RETURNING purpose_id INTO new_purpose_id;
+
+--  Insert visit log
+INSERT INTO visit_log(
+    date_of_visit,
+    time_in,
+    guest_id,
+    company_id,
+    contact_id,
+    purpose_id
+)
+VALUES(
+    CURRENT_DATE,
+    CURRENT_TIMESTAMP,
+    new_guest_id,
+    new_company_id,
+    new_contact_id,
+    new_purpose_id
+)
+RETURNING visit_id INTO new_visit_id;
+
+--  Return visit_id
+RETURN new_visit_id;
+
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION add_guest_timeout(
+    p_visit_id INT,
     p_user_id INT
 )
 RETURNS VOID
 LANGUAGE plpgsql
 AS $$
-DECLARE
-    new_guest_id INT;
 BEGIN
-    INSERT INTO guest(
-        lastname,
-        firstname,
-        middle_initial,
-        suffix,
-        contact_number,
-        email
-    )
-    VALUES (
-        p_lastname,
-        p_firstname,
-        p_middle_initial,
-        p_suffix,
-        p_contact,
-        p_email
-    )
-    RETURNING guest_id INTO new_guest_id;
 
-    INSERT INTO visit_log(
-        guest_id,
-        company_id,
-        contact_id,
-        purpose_id,
-        user_id
-    )
-    VALUES(
-        new_guest_id,
-        p_company_id,
-        p_contact_id,
-        p_purpose_id,
-        p_user_id
-    );
+UPDATE visit_log
+SET 
+    time_out = CURRENT_TIMESTAMP,
+    user_id = p_user_id
+WHERE visit_id = p_visit_id
+AND time_out IS NULL;
+
+IF NOT FOUND THEN
+    RAISE EXCEPTION 'Visit already timed out or does not exist';
+END IF;
+
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION add_guest_timeout(
-    p_visit_id INT
-)
-RETURNS VOID
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    UPDATE visit_log
-    SET time_out = CURRENT_TIMESTAMP
-    WHERE visit_id = p_visit_id;
-END;
-$$;
 
 CREATE OR REPLACE FUNCTION delete_guest_log(
     p_visit_id INT
