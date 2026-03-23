@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     role_id INT NOT NULL,
     person_id INT NOT NULL,
+    profile_pic TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     is_tempPassword BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,

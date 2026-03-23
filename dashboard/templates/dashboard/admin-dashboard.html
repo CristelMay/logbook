@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-8">
+    <h2 class="text-4xl font-semibold text-gray-800">Welcome, Admin 🎉</h2>
+    <div class="flex items-center gap-3">
+        <div class="text-right">
+            <p class="font-semibold text-sm text-gray-800">Admin</p>
+            <p class="text-xs text-gray-400">@admin.admin</p>
+        </div>
+        <img src="{% static 'images/default-profile.png' %}" class="w-10 h-10 rounded-full object-cover">
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid grid-cols-3 gap-12 mb-8">
+    <div class="rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden" style="background-image: url('{% static 'images/card-bg.svg' %}'); background-size: cover; background-position: center;">
+        <i data-lucide="users" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
+        <p class="text-5xl font-bold text-white mt-1 mb-2">12</p>
+        <p class="text-lg font-semibold text-white">Today's Visitors</p>
+    </div>
+    <div class="rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden" style="background-image: url('{% static 'images/card-bg.svg' %}'); background-size: cover; background-position: center;">
+        <i data-lucide="door-open" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
+        <p class="text-5xl font-bold text-white mt-1 mb-2">5</p>
+        <p class="text-lg font-semibold text-white">Currently Inside</p>
+    </div>
+    <div class="rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden" style="background-image: url('{% static 'images/card-bg.svg' %}'); background-size: cover; background-position: center;">
+        <i data-lucide="log-out" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
+        <p class="text-5xl font-bold text-white mt-1 mb-2">7</p>
+        <p class="text-lg font-semibold text-white">Checked Out</p>
+    </div>
+</div>
+
+<!-- Bottom Cards Row 1 -->
+<div class="grid grid-cols-2 gap-6 mb-6">
+
+    <!-- Recent Check-outs -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 class="text-xl font-semibold text-black mb-4">Recent Check-outs</h3>
+        <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
+            <table class="w-full text-xs text-black border-collapse">
+                <thead>
+                    <tr style="background-color: #F1F1F1;">
+                        <th class="text-left px-4 py-3 font-semibold">Name</th>
+                        <th class="text-left px-4 py-3 font-semibold">Company</th>
+                        <th class="text-left px-4 py-3 font-semibold">Time In</th>
+                        <th class="text-left px-4 py-3 font-semibold">Time Out</th>
+                        <th class="text-left px-4 py-3 font-semibold">Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-top: 1px solid #e5e7eb;">
+                        <td class="px-4 py-3">Ana Reyes</td>
+                        <td class="px-4 py-3">SoftWorks</td>
+                        <td class="px-4 py-3">07:45 AM</td>
+                        <td class="px-4 py-3">09:00 AM</td>
+                        <td class="px-4 py-3">1h 15m</td>
+                    </tr>
+                    <tr style="border-top: 1px solid #e5e7eb;">
+                        <td class="px-4 py-3">Ben Cruz</td>
+                        <td class="px-4 py-3">DataPH</td>
+                        <td class="px-4 py-3">08:00 AM</td>
+                        <td class="px-4 py-3">09:30 AM</td>
+                        <td class="px-4 py-3">1h 30m</td>
+                    </tr>
+                    <tr style="border-top: 1px solid #e5e7eb;">
+                        <td class="px-4 py-3">Lea Gomez</td>
+                        <td class="px-4 py-3">Nexus Inc</td>
+                        <td class="px-4 py-3">08:30 AM</td>
+                        <td class="px-4 py-3">10:00 AM</td>
+                        <td class="px-4 py-3">1h 30m</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Frequent Visitors -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 class="text-xl font-semibold text-black mb-4">Frequent Visitors</h3>
+        <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
+            <table class="w-full text-xs text-black border-collapse">
+                <thead>
+                    <tr style="background-color: #F1F1F1;">
+                        <th class="text-left px-4 py-3 font-semibold">Name</th>
+                        <th class="text-left px-4 py-3 font-semibold">Company</th>
+                        <th class="text-left px-4 py-3 font-semibold">Visits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-top: 1px solid #e5e7eb;">
+                        <td class="px-4 py-3">John Smith</td>
+                        <td class="px-4 py-3">Acme Corp</td>
+                        <td class="px-4 py-3">24</td>
+                    </tr>
+                    <tr style="border-top: 1px solid #e5e7eb;">
+                        <td class="px-4 py-3">Maria Santos</td>
+                        <td class="px-4 py-3">GlobalTech</td>
+                        <td class="px-4 py-3">18</td>
+                    </tr>
+                    <tr style="border-top: 1px solid #e5e7eb;">
+                        <td class="px-4 py-3">Carlos Reyes</td>
+                        <td class="px-4 py-3">Innovate PH</td>
+                        <td class="px-4 py-3">15</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Today's Visitor Log - Full Width -->
+<div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+    <h3 class="text-xl font-semibold text-black mb-4">Today's Visitor Log</h3>
+    <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
+        <table class="w-full text-xs text-black border-collapse">
+            <thead>
+                <tr style="background-color: #F1F1F1;">
+                    <th class="text-left px-4 py-3 font-semibold">Name</th>
+                    <th class="text-left px-4 py-3 font-semibold">Company</th>
+                    <th class="text-left px-4 py-3 font-semibold">Purpose</th>
+                    <th class="text-left px-4 py-3 font-semibold">Contact</th>
+                    <th class="text-left px-4 py-3 font-semibold">Contact Person</th>
+                    <th class="text-left px-4 py-3 font-semibold">Time In</th>
+                    <th class="text-left px-4 py-3 font-semibold">Time Out</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td class="px-4 py-3">John Smith</td>
+                    <td class="px-4 py-3">Acme Corp</td>
+                    <td class="px-4 py-3">Meeting</td>
+                    <td class="px-4 py-3">09171234567</td>
+                    <td class="px-4 py-3">Mark Reyes</td>
+                    <td class="px-4 py-3">08:30 AM</td>
+                    <td class="px-4 py-3">—</td>
+                </tr>
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td class="px-4 py-3">Ana Reyes</td>
+                    <td class="px-4 py-3">SoftWorks</td>
+                    <td class="px-4 py-3">Delivery</td>
+                    <td class="px-4 py-3">09221234567</td>
+                    <td class="px-4 py-3">Lisa Cruz</td>
+                    <td class="px-4 py-3">07:45 AM</td>
+                    <td class="px-4 py-3">09:00 AM</td>
+                </tr>
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td class="px-4 py-3">Maria Santos</td>
+                    <td class="px-4 py-3">GlobalTech</td>
+                    <td class="px-4 py-3">Interview</td>
+                    <td class="px-4 py-3">09189876543</td>
+                    <td class="px-4 py-3">HR Dept</td>
+                    <td class="px-4 py-3">09:15 AM</td>
+                    <td class="px-4 py-3">—</td>
+                </tr>
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td class="px-4 py-3">Ben Cruz</td>
+                    <td class="px-4 py-3">DataPH</td>
+                    <td class="px-4 py-3">Maintenance</td>
+                    <td class="px-4 py-3">09301112233</td>
+                    <td class="px-4 py-3">IT Dept</td>
+                    <td class="px-4 py-3">08:00 AM</td>
+                    <td class="px-4 py-3">09:30 AM</td>
+                </tr>
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td class="px-4 py-3">Carlos Reyes</td>
+                    <td class="px-4 py-3">Innovate PH</td>
+                    <td class="px-4 py-3">Meeting</td>
+                    <td class="px-4 py-3">09201112233</td>
+                    <td class="px-4 py-3">Jane Lim</td>
+                    <td class="px-4 py-3">10:00 AM</td>
+                    <td class="px-4 py-3">—</td>
+                </tr>
+                <tr style="border-top: 1px solid #e5e7eb;">
+                    <td class="px-4 py-3">Lea Gomez</td>
+                    <td class="px-4 py-3">Nexus Inc</td>
+                    <td class="px-4 py-3">Audit</td>
+                    <td class="px-4 py-3">09451112233</td>
+                    <td class="px-4 py-3">Finance Dept</td>
+                    <td class="px-4 py-3">08:30 AM</td>
+                    <td class="px-4 py-3">10:00 AM</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(url='/registration/login/', permanent=True)),
     path('registration/', include('registration.urls')),
+    path('dashboard/', include('dashboard.urls')),
 ]
 
 if 'django_browser_reload' in settings.INSTALLED_APPS:
