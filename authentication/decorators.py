@@ -19,7 +19,9 @@ def role_required(*allowed_roles):
             if not user_id or not role_name:
                 return redirect('registration:login')
 
-            if is_temp_password and url_name != 'change_password':
+            # Guard users complete first-login password reset inside lobby dashboard modal.
+            allow_guard_lobby_modal = role_name == 'guard' and url_name == 'lobby_dashboard'
+            if is_temp_password and url_name != 'change_password' and not allow_guard_lobby_modal:
                 return redirect('registration:change_password')
 
             if allowed_roles and role_name not in allowed_roles:

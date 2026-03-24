@@ -16,16 +16,22 @@
             <div>
             <h1 class="text-2xl font-bold mb-12">logo</h1>
             <nav class="flex flex-col gap-2 pr-0">
+                {% if is_guard_role %}
+                <a href="{% url 'registration:lobby_dashboard' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'lobby_dashboard' %}bg-gray-100 text-[#0A305D]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="layout-dashboard" class="w-6 h-6"></i>Dashboard</a>
+                {% else %}
                 <a href="{% url 'registration:index' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'index' %}bg-gray-100 text-[#0A305D]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="layout-dashboard" class="w-6 h-6"></i>Dashboard</a>
+                {% endif %}
                 <a href="{% url 'registration:guestlist' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'guestlist' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="book-open" class="w-6 h-6"></i>Visitor Log</a>
+                {% if is_admin_role %}
                 <a href="{% url 'registration:create_personnel' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'create_personnel' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="users" class="w-6 h-6"></i>Lobby Personnel</a>
+                {% endif %}
             </nav>
             </div>
             <div class="flex items-center gap-4 py-5 pr-4">
-                <img src="{% static 'images/default-profile.png' %}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
                 <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-sm truncate">Admin</p>
-                    <p class="text-xs text-white/70 truncate">@admin.admin</p>
+                    <p class="font-semibold text-sm truncate">{{ current_full_name|default:'User' }}</p>
+                    <p class="text-xs text-white/70 truncate">@{{ current_username|default:'user' }}</p>
                 </div>
                 <a href="{% url 'registration:logout' %}" class="flex-shrink-0 hover:text-white/70"><i data-lucide="log-out" class="w-5 h-5"></i></a>
             </div>

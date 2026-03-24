@@ -4,30 +4,38 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
+<style>
+    .stat-card-bg {
+        background-image: url("/static/images/card-bg.svg");
+        background-size: cover;
+        background-position: center;
+    }
+</style>
+
 <div class="flex items-center justify-between mb-8">
-    <h2 class="text-4xl font-semibold text-gray-800">Welcome, Admin 🎉</h2>
+    <h2 class="text-4xl font-semibold text-gray-800">Welcome, {{ current_display_name }}</h2>
     <div class="flex items-center gap-3">
         <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">Admin</p>
-            <p class="text-xs text-gray-400">@admin.admin</p>
+            <p class="font-semibold text-sm text-gray-800">{{ current_full_name }}</p>
+            <p class="text-xs text-gray-400">@{{ current_username|default:'user' }}</p>
         </div>
-        <img src="{% static 'images/default-profile.png' %}" class="w-10 h-10 rounded-full object-cover">
+        <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
     </div>
 </div>
 
 <!-- Stat Cards -->
 <div class="grid grid-cols-3 gap-12 mb-8">
-    <div class="rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden" style="background-image: url('{% static 'images/card-bg.svg' %}'); background-size: cover; background-position: center;">
+    <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">
         <i data-lucide="users" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
         <p class="text-5xl font-bold text-white mt-1 mb-2">12</p>
         <p class="text-lg font-semibold text-white">Today's Visitors</p>
     </div>
-    <div class="rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden" style="background-image: url('{% static 'images/card-bg.svg' %}'); background-size: cover; background-position: center;">
+    <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">
         <i data-lucide="door-open" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
         <p class="text-5xl font-bold text-white mt-1 mb-2">5</p>
         <p class="text-lg font-semibold text-white">Currently Inside</p>
     </div>
-    <div class="rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden" style="background-image: url('{% static 'images/card-bg.svg' %}'); background-size: cover; background-position: center;">
+    <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">
         <i data-lucide="log-out" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
         <p class="text-5xl font-bold text-white mt-1 mb-2">7</p>
         <p class="text-lg font-semibold text-white">Checked Out</p>

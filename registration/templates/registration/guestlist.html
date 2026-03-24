@@ -11,10 +11,10 @@
     </div>
     <div class="flex items-center gap-3">
         <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">Admin</p>
-            <p class="text-xs text-gray-400">@admin.admin</p>
+            <p class="font-semibold text-sm text-gray-800">{{ current_full_name }}</p>
+            <p class="text-xs text-gray-400">@{{ current_username|default:'user' }}</p>
         </div>
-        <img src="{% static 'images/default-profile.png' %}" class="w-10 h-10 rounded-full object-cover">
+        <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
     </div>
 </div>
 {% endblock %}
