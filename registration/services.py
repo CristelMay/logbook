@@ -24,3 +24,5 @@ def create_guest_visit(cleaned_data):
             )
             row = cursor.fetchone()
             return row[0] if row else None
+
+
