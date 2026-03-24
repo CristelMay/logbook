@@ -5,6 +5,12 @@ from django.shortcuts import redirect, render
 from .services import create_guest_visit
 from .validators import validate_guest_registration_payload
 
+def index(request):
+    return render(request, "registration/admin-dashboard.html")
+
+def lobby_dashboard(request):
+    return render(request, "registration/lobby-dashboard.html")
+
 def registration_view(request):
     context = {
         'form_data': {},
