@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     role_id INT NOT NULL,
     person_id INT NOT NULL,
-    profile_pic TEXT,
+    profile_pic TEXT,   
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     is_tempPassword BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -342,7 +342,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION view_guest_logs()
+CCREATE OR REPLACE FUNCTION view_guest_logs()
 RETURNS TABLE(
     visit_id INT,
     guest_name TEXT,
@@ -350,39 +350,64 @@ RETURNS TABLE(
     company_name VARCHAR,
     contact_person VARCHAR,
     purpose_name VARCHAR,
+    guard_name TEXT,
+    date_of_visit DATE,
     time_in TIMESTAMP,
     time_out TIMESTAMP
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    RETURN QUERY
-    SELECT
-        v.visit_id,
-        g.firstname
-        || CASE
-            WHEN g.middle_initial IS NOT NULL AND g.middle_initial <> ''
-            THEN ' ' || g.middle_initial || '.'
-            ELSE ''
-           END
-        || ' ' || g.lastname
-        || CASE
-            WHEN g.suffix IS NOT NULL AND g.suffix <> ''
-            THEN ' ' || g.suffix
-            ELSE ''
-           END AS guest_name,
-        g.contact_number,
-        vc.company_name,
-        e.full_name,
-        vp.purpose_name,
-        v.time_in AT TIME ZONE 'Asia/Manila' AS time_in,
-        v.time_out AT TIME ZONE 'Asia/Manila' AS time_out
-    FROM visit_log v
-    JOIN guest g ON v.guest_id = g.guest_id
-    JOIN visitor_company vc ON v.company_id = vc.company_id
-    JOIN employee e ON v.contact_id = e.contact_id
-    JOIN visit_purpose vp ON v.purpose_id = vp.purpose_id
-    ORDER BY v.time_in DESC;
+
+RETURN QUERY
+SELECT
+    v.visit_id,
+
+    g.firstname
+    || CASE 
+        WHEN g.middle_initial IS NOT NULL AND g.middle_initial <> '' 
+        THEN ' ' || g.middle_initial || '.' 
+        ELSE '' 
+       END
+    || ' ' || g.lastname
+    || CASE 
+        WHEN g.suffix IS NOT NULL AND g.suffix <> '' 
+        THEN ' ' || g.suffix 
+        ELSE '' 
+       END,
+
+    g.contact_number,
+
+    vc.company_name,
+    e.full_name,
+    vp.purpose_name,
+
+    p.firstname
+    || CASE 
+        WHEN p.middle_initial IS NOT NULL AND p.middle_initial <> '' 
+        THEN ' ' || p.middle_initial || '.' 
+        ELSE '' 
+       END
+    || ' ' || p.lastname
+    || CASE 
+        WHEN p.suffix IS NOT NULL AND p.suffix <> '' 
+        THEN ' ' || p.suffix 
+        ELSE '' 
+       END,
+
+    v.date_of_visit,
+
+    v.time_in AT TIME ZONE 'Asia/Manila',
+    v.time_out AT TIME ZONE 'Asia/Manila'
+
+FROM visit_log v
+LEFT JOIN guest g ON v.guest_id = g.guest_id
+LEFT JOIN visitor_company vc ON v.company_id = vc.company_id
+LEFT JOIN employee e ON v.contact_id = e.contact_id
+LEFT JOIN visit_purpose vp ON v.purpose_id = vp.purpose_id
+LEFT JOIN users u ON v.user_id = u.user_id
+LEFT JOIN person p ON u.person_id = p.person_id
+ORDER BY v.time_in DESC;
 END;
 $$;
 

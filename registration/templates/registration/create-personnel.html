@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Lobby Personnel{% endblock %}
+
+{% block topbar %}
+<div class="flex items-center justify-between mb-8">
+    <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 596.53px; height: 46.92px;">
+        <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+        <input type="text" placeholder="Search personnel..." class="text-sm w-full bg-transparent" style="outline: none; border: none; box-shadow: none;">
+    </div>
+    <div class="flex items-center gap-3">
+        <div class="text-right">
+            <p class="font-semibold text-sm text-gray-800">Admin</p>
+            <p class="text-xs text-gray-400">@admin.admin</p>
+        </div>
+        <img src="{% static 'images/default-profile.png' %}" class="w-10 h-10 rounded-full object-cover">
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-8">
+    <h2 class="text-4xl font-semibold text-gray-800">Lobby Personnel</h2>
+    <button onclick="openCreateModal()" class="flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium hover:opacity-80 transition" style="background-color: #00459E;">
+        <i data-lucide="circle-plus" class="w-4 h-4"></i> New Personnel
+    </button>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+
+    <!-- Card 1 -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm flex items-center gap-4">
+        <img src="{% static 'images/default-profile.png' %}" class="w-16 h-16 rounded-full object-cover flex-shrink-0">
+        <div>
+            <p class="text-lg font-bold text-gray-800">Juan Dela Cruz</p>
+            <p class="text-sm text-gray-400">@juandelacruz</p>
+            <button onclick="openProfileModal('Juan Dela Cruz', '@juandelacruz')" class="text-sm font-medium mt-1" style="color: #00459E;">View Profile</button>
+        </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm flex items-center gap-4">
+        <img src="{% static 'images/default-profile.png' %}" class="w-16 h-16 rounded-full object-cover flex-shrink-0">
+        <div>
+            <p class="text-lg font-bold text-gray-800">Maria Santos</p>
+            <p class="text-sm text-gray-400">@mariasantos</p>
+            <button onclick="openProfileModal('Maria Santos', '@mariasantos')" class="text-sm font-medium mt-1" style="color: #00459E;">View Profile</button>
+        </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm flex items-center gap-4">
+        <img src="{% static 'images/default-profile.png' %}" class="w-16 h-16 rounded-full object-cover flex-shrink-0">
+        <div>
+            <p class="text-lg font-bold text-gray-800">Carlos Reyes</p>
+            <p class="text-sm text-gray-400">@carlosreyes</p>
+            <button onclick="openProfileModal('Carlos Reyes', '@carlosreyes')" class="text-sm font-medium mt-1" style="color: #00459E;">View Profile</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- View Profile Modal -->
+<div id="profileModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Personnel Profile</h3>
+            <button onclick="closeProfileModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
+        <div class="flex flex-col items-center gap-3 mb-6">
+            <img src="{% static 'images/default-profile.png' %}" class="w-20 h-20 rounded-full object-cover">
+            <div class="text-center">
+                <p class="text-xl font-bold text-gray-800" id="profile-name"></p>
+                <p class="text-sm text-gray-400" id="profile-username"></p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button onclick="openResetConfirmModal()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-80 transition" style="background-color: #00459E;">Reset Password</button>
+            <button onclick="closeProfileModal()" class="px-6 py-2.5 rounded-xl border text-sm font-medium text-gray-600 hover:bg-gray-50" style="border-color: #e5e7eb;">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Confirmation Modal -->
+<div id="resetConfirmModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Reset Password</h3>
+            <button onclick="closeResetConfirmModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
+        <p class="text-sm text-gray-600 mb-6">Are you sure you want to reset password for <span class="font-semibold text-gray-800" id="reset-name"></span>?</p>
+        <div class="flex justify-end gap-3">
+            <button onclick="closeResetConfirmModal()" class="px-6 py-2.5 rounded-xl border text-sm font-medium text-gray-600 hover:bg-gray-50" style="border-color: #e5e7eb;">Cancel</button>
+            <button onclick="confirmResetPassword()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-80 transition" style="background-color: #00459E;">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Temporary Password Modal -->
+<div id="tempPasswordModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Password Reset Successful</h3>
+            <button onclick="closeTempPasswordModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
+        <p class="text-sm text-gray-500 mb-4">Share these credentials with the personnel.</p>
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-4 p-4 rounded-xl" style="border: 1px solid #e5e7eb;">
+                <i data-lucide="user" class="w-6 h-6 flex-shrink-0" style="color: #00459E;"></i>
+                <div>
+                    <p class="text-xs text-gray-500">Username</p>
+                    <p class="font-semibold text-gray-800" id="temp-username"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 p-4 rounded-xl" style="border: 1px solid #e5e7eb;">
+                <i data-lucide="key-round" class="w-6 h-6 flex-shrink-0" style="color: #00459E;"></i>
+                <div>
+                    <p class="text-xs text-gray-500">Temporary Password</p>
+                    <p class="font-semibold text-gray-800" id="temp-password"></p>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end mt-6">
+            <button onclick="closeTempPasswordModal()" class="px-6 py-2.5 rounded-xl border text-sm font-medium text-gray-600 hover:bg-gray-50" style="border-color: #e5e7eb;">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Create Personnel Modal -->
+<div id="createModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Add Lobby Personnel</h3>
+            <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
+
+        <form class="flex gap-6">
+            <!-- Column 1: Photo -->
+            <div class="flex flex-col items-center gap-2 flex-shrink-0">
+                <div class="relative">
+                    <img id="preview-photo" src="{% static 'images/default-profile.png' %}" class="w-36 h-36 rounded-full object-cover">
+                    <label for="upload-photo" class="absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer" style="background-color: #00459E;">
+                        <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+                    </label>
+                    <input type="file" id="upload-photo" accept="image/*" class="hidden" onchange="previewPhoto(event)">
+                </div>
+                <p class="text-xs text-gray-400">Upload Photo</p>
+            </div>
+
+            <!-- Column 2: Fields -->
+            <div class="flex flex-col gap-4 flex-1">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-red-500">*</span></label>
+                    <input type="text" placeholder="e.g. Dela Cruz" class="w-full border border-black rounded-full px-4 py-2.5 text-sm focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-500">*</span></label>
+                    <input type="text" placeholder="e.g. Juan" class="w-full border border-black rounded-full px-4 py-2.5 text-sm focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">M.I.</label>
+                        <input type="text" placeholder="e.g. M" maxlength="1" class="w-full border border-black rounded-full px-4 py-2.5 text-sm focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Suffix</label>
+                        <input type="text" placeholder="e.g. Jr" class="w-full border border-black rounded-full px-4 py-2.5 text-sm focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username <span class="text-red-500">*</span></label>
+                    <input type="text" placeholder="e.g. juandelacruz" class="w-full border border-black rounded-full px-4 py-2.5 text-sm focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Temporary Password <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2">
+                        <input type="text" id="temp-pass-field" readonly class="w-full border border-black rounded-full px-4 py-2.5 text-sm bg-gray-50 text-gray-600 focus:outline-none">
+                        <button type="button" onclick="generateTempPassword()" class="flex-shrink-0 px-4 py-2.5 rounded-full text-white text-sm font-medium hover:opacity-80 transition" style="background-color: #00459E;">Generate</button>
+                    </div>
+                </div>
+                <div class="flex gap-3 justify-end mt-2">
+                    <button type="button" onclick="closeCreateModal()" class="px-6 py-2.5 rounded-full border text-sm font-medium text-gray-600 hover:bg-gray-50" style="border-color: #e5e7eb;">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-full text-sm font-medium text-white hover:opacity-80 transition" style="background-color: #00459E;">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let currentUsername = '';
+
+    function previewPhoto(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => document.getElementById('preview-photo').src = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    }
+    function openCreateModal() {
+        generateTempPassword();
+        const modal = document.getElementById('createModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function generateTempPassword() {
+        const pass = 'Temp@' + Math.random().toString(36).slice(2, 8);
+        document.getElementById('temp-pass-field').value = pass;
+    }
+    function closeCreateModal() {
+        const modal = document.getElementById('createModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    function openProfileModal(name, username) {
+        currentUsername = username;
+        document.getElementById('profile-name').textContent = name;
+        document.getElementById('profile-username').textContent = username;
+        const modal = document.getElementById('profileModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeProfileModal() {
+        const modal = document.getElementById('profileModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    function openResetConfirmModal() {
+        document.getElementById('reset-name').textContent = document.getElementById('profile-name').textContent;
+        closeProfileModal();
+        const modal = document.getElementById('resetConfirmModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeResetConfirmModal() {
+        const modal = document.getElementById('resetConfirmModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    function confirmResetPassword() {
+        const tempPass = 'Temp@' + Math.random().toString(36).slice(2, 8);
+        document.getElementById('temp-username').textContent = currentUsername;
+        document.getElementById('temp-password').textContent = tempPass;
+        closeResetConfirmModal();
+        const modal = document.getElementById('tempPasswordModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeTempPasswordModal() {
+        const modal = document.getElementById('tempPasswordModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+</script>
+{% endblock %}
