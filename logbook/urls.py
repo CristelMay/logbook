@@ -23,8 +23,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', RedirectView.as_view(url=reverse_lazy('registration:login'), permanent=True)),
-    path('registration/', include('registration.urls')),
+    path('', RedirectView.as_view(url=reverse_lazy('registration:login'), permanent=False)),
+    path('logbook/', include('registration.urls')),
 ]
 
 if 'django_browser_reload' in settings.INSTALLED_APPS:

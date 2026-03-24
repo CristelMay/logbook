@@ -14,27 +14,17 @@
   
         <!-- Left: Form -->
         <div class="w-full md:w-[40%] p-6 sm:p-8 md:p-12 flex flex-col">
-            <img src="{% static 'images/innodata-logo.png' %}" alt="Innodata Logo" class="h-7 w-auto mb-6 object-contain self-start">
+            <img src="{% static 'images/innodata-logo.png' %}" alt="Innodata Logo" class="h-7 w-auto object-contain self-start">
 
             <div class="flex flex-col justify-center items-stretch flex-1 md:px-8">
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-8 md:mb-14 text-center">Login</h2>
 
-                {% if messages %}
-                    <div class="mb-4 space-y-2">
-                        {% for message in messages %}
-                            <div class="rounded-lg px-3 py-2 text-sm font-medium {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                <form method="post" action="{% url 'registration:login' %}">
+                <form method="post">
                     {% csrf_token %}
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-black mb-1">Username</label>
-                        <input type="text" name="username" placeholder="e.g. juandelacruz" value="{{ form_data.username|default:'' }}" required
+                        <input type="text" name="username" placeholder="e.g. juandelacruz"
                             class="w-full border-0 border-b border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#00459E]">
                     </div>
 
@@ -42,7 +32,6 @@
                         <label class="block text-sm font-medium text-black mb-1">Password</label>
                         <div class="relative">
                             <input id="password" type="password" name="password" placeholder="Enter your password"
-                                required
                                 class="w-full border-0 border-b border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#00459E] pr-10">
                             <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center text-gray-400 hover:text-gray-600">
                                 <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,15 +43,15 @@
                     </div>
 
                     <div class="text-right mb-8">
-                        <a href="#" class="text-xs text-[#00459E] hover:underline">Forgot password?</a>
+                        <button type="button" onclick="openForgotModal()" class="text-xs text-[#00459E] hover:underline">Forgot password?</button>
                     </div>
 
                     <button type="submit" class="w-full bg-[#00459E] text-white font-semibold py-2 rounded-lg hover:bg-blue-800 transition text-sm">Login</button>
                 </form>
 
-                <p class="text-center text-sm text-gray-500 mt-4">
+                <!-- <p class="text-center text-sm text-gray-500 mt-4">
                     Don't have an account? <a href="#" class="text-[#00459E] font-medium hover:underline">Sign up</a>
-                </p>
+                </p> -->
             </div>
         </div>
 
@@ -73,7 +62,42 @@
 
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Forgot Password</h3>
+                <button onclick="closeForgotModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
+            <div class="flex flex-col items-center text-center gap-3 mb-6">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center mb-1" style="background-color: #EFF6FF;">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #00459E;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                </div>
+                <p class="text-sm text-gray-600">Please approach the <span class="font-semibold text-gray-800">Admin</span> to reset your password.</p>
+                <!-- <p class="text-xs text-gray-400">The admin will generate a temporary password for you.</p> -->
+            </div>
+            <button onclick="closeForgotModal()" class="w-full py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-80 transition" style="background-color: #00459E;">Got it</button>
+        </div>
+    </div>
+
     <script>
+        function openForgotModal() {
+            const modal = document.getElementById('forgotModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeForgotModal() {
+            const modal = document.getElementById('forgotModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
         function togglePassword() {
             const input = document.getElementById('password');
             const icon = document.getElementById('eye-icon');

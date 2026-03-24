@@ -21,7 +21,7 @@
                 {% else %}
                 <a href="{% url 'registration:index' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'index' %}bg-gray-100 text-[#0A305D]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="layout-dashboard" class="w-6 h-6"></i>Dashboard</a>
                 {% endif %}
-                <a href="{% url 'registration:guestlist' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'guestlist' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="book-open" class="w-6 h-6"></i>Visitor Log</a>
+                <a href="{% url 'registration:guestlist' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'guestlist' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="book-open" class="w-6 h-6"></i>Guest Log</a>
                 {% if is_admin_role %}
                 <a href="{% url 'registration:create_personnel' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'create_personnel' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="users" class="w-6 h-6"></i>Lobby Personnel</a>
                 {% endif %}
