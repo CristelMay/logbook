@@ -53,6 +53,8 @@ CREATE TABLE IF NOT EXISTS visitor_company (
     company_name VARCHAR(150) UNIQUE NOT NULL
 );
 
+-- kkkk
+
 CREATE TABLE IF NOT EXISTS employee (
     contact_id SERIAL PRIMARY KEY,
     full_name VARCHAR(150) UNIQUE NOT NULL
