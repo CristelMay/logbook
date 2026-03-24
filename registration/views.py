@@ -43,3 +43,9 @@ def login_view(request):
 
 def create_personnel_view(request):
     return render(request, 'registration/create-personnel.html')
+
+def guestlist_view(request):
+    return render(request, 'registration/guestlist.html')
+
+def guestlist_view (request):
+    return render(request, 'registration/guestlist.html')
