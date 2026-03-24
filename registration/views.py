@@ -33,3 +33,7 @@ def registration_view(request):
 
 def login_view(request):
     return render(request, 'registration/login.html')
+
+
+def create_personnel_view(request):
+    return render(request, 'registration/create-personnel.html')
