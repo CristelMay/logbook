@@ -1,6 +1,9 @@
 from django.shortcuts import render
 
+from authentication.decorators import role_required
 
+
+@role_required('admin', 'guard')
 def index_view(request):
     """
     Sample view for the app index page.
@@ -14,6 +17,7 @@ def index_view(request):
     return render(request, 'my_app/index.html', context)
 
 
+@role_required('admin', 'guard')
 def detail_view(request, item_id):
     """
     Sample detail view with URL parameter.

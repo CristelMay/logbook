@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'theme',
     'my_app',  # Sample app demonstrating structure
     # Add your apps here
+    'authentication',
     'registration',
     'dashboard',
 ]
@@ -222,6 +223,7 @@ REST_FRAMEWORK = {
 }
 
 # Session Configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 1800  # 30 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True

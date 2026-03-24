@@ -17,13 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.urls import reverse_lazy
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', RedirectView.as_view(url='/registration/login/', permanent=True)),
-    path('logbook/', include('registration.urls')),
+    path('', RedirectView.as_view(url=reverse_lazy('registration:login'), permanent=True)),
+    path('registration/', include('registration.urls')),
 ]
 
 if 'django_browser_reload' in settings.INSTALLED_APPS:

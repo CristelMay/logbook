@@ -19,12 +19,22 @@
             <div class="flex flex-col justify-center items-stretch flex-1 md:px-8">
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-8 md:mb-14 text-center">Login</h2>
 
-                <form method="post">
+                {% if messages %}
+                    <div class="mb-4 space-y-2">
+                        {% for message in messages %}
+                            <div class="rounded-lg px-3 py-2 text-sm font-medium {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'registration:login' %}">
                     {% csrf_token %}
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-black mb-1">Username</label>
-                        <input type="text" name="username" placeholder="e.g. juandelacruz"
+                        <input type="text" name="username" placeholder="e.g. juandelacruz" value="{{ form_data.username|default:'' }}" required
                             class="w-full border-0 border-b border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#00459E]">
                     </div>
 
@@ -32,6 +42,7 @@
                         <label class="block text-sm font-medium text-black mb-1">Password</label>
                         <div class="relative">
                             <input id="password" type="password" name="password" placeholder="Enter your password"
+                                required
                                 class="w-full border-0 border-b border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#00459E] pr-10">
                             <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center text-gray-400 hover:text-gray-600">
                                 <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
