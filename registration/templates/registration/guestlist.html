@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Guest List{% endblock %}
+
+{% block topbar %}
+<div class="flex items-center justify-between mb-8">
+    <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 596.53px; height: 46.92px;">
+        <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+        <input type="text" placeholder="Search guests..." class="text-sm w-full bg-transparent" style="outline: none; border: none; box-shadow: none;">
+    </div>
+    <div class="flex items-center gap-3">
+        <div class="text-right">
+            <p class="font-semibold text-sm text-gray-800">Admin</p>
+            <p class="text-xs text-gray-400">@admin.admin</p>
+        </div>
+        <img src="{% static 'images/default-profile.png' %}" class="w-10 h-10 rounded-full object-cover">
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<h2 class="text-4xl font-semibold text-gray-800 mb-8">Guest List</h2>
+{% endblock %}

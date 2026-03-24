@@ -61,3 +61,9 @@ def registration_view(request):
 @role_required('admin')
 def create_personnel_view(request):
     return render(request, 'registration/create-personnel.html')
+
+def guestlist_view(request):
+    return render(request, 'registration/guestlist.html')
+
+def guestlist_view (request):
+    return render(request, 'registration/guestlist.html')
