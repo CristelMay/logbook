@@ -3,6 +3,8 @@
 
 SET TIME ZONE 'Asia/Manila';
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- =============================
 -- TABLES
 -- =============================
@@ -165,12 +167,12 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION login_user(
-    p_username VARCHAR
+    p_username VARCHAR,
+    p_password TEXT
 )
 RETURNS TABLE(
     user_id INT,
     username VARCHAR,
-    password_hash TEXT,
     role_name VARCHAR,
     is_active BOOLEAN,
     is_tempPassword BOOLEAN
@@ -182,13 +184,13 @@ BEGIN
     SELECT
         u.user_id,
         u.username,
-        u.password_hash,
         r.role_name,
         u.is_active,
         u.is_tempPassword
     FROM users u
     JOIN role r ON u.role_id = r.role_id
-    WHERE u.username = p_username;
+        WHERE u.username = p_username
+            AND u.password_hash = crypt(p_password, u.password_hash);
 END;
 $$;
 
@@ -201,7 +203,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     UPDATE users
-    SET password_hash = p_new_password,
+    SET password_hash = crypt(p_new_password, gen_salt('bf')),
         is_tempPassword = FALSE
     WHERE user_id = p_user_id;
 END;
@@ -469,3 +471,37 @@ BEGIN
     ORDER BY v.time_in DESC;
 END;
 $$;
+
+--COUNT THE NUMBER OF GUESTS
+CREATE OR REPLACE FUNCTION get_dashboard_stats()
+RETURNS TABLE(
+    total_today INT,
+    currently_inside INT,
+    checked_out_today INT,
+    total_this_month INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        -- total visitors today
+        COUNT(*) FILTER (WHERE date_of_visit = CURRENT_DATE)::INT,
+        
+        -- visitors currently inside
+        COUNT(*) FILTER (WHERE time_out IS NULL)::INT,
+        
+        -- visitors checked out today
+        COUNT(*) FILTER (
+            WHERE date_of_visit = CURRENT_DATE 
+            AND time_out IS NOT NULL
+        )::INT,
+        
+        -- visitors this month
+        COUNT(*) FILTER (
+            WHERE date_trunc('month', date_of_visit) = date_trunc('month', CURRENT_DATE)
+        )::INT
+    FROM visit_log;
+END;
+$$;
+

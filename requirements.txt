@@ -23,3 +23,6 @@ gunicorn==23.0.0
 
 # Image processing
 Pillow==11.3.0
+
+# Supabase storage client
+supabase==2.15.3
