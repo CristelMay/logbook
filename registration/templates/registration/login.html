@@ -19,12 +19,22 @@
             <div class="flex flex-col justify-center items-stretch flex-1 md:px-8">
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-8 md:mb-14 text-center">Login</h2>
 
+                {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                    <div class="rounded-lg border px-3 py-2 text-sm {% if message.tags == 'success' %}border-green-200 bg-green-50 text-green-700{% else %}border-red-200 bg-red-50 text-red-700{% endif %}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-black mb-1">Username</label>
-                        <input type="text" name="username" placeholder="e.g. juandelacruz"
+                        <input type="text" name="username" value="{{ form_data.username|default:'' }}" placeholder="e.g. juandelacruz"
                             class="w-full border-0 border-b border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#00459E]">
                     </div>
 
