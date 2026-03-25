@@ -287,7 +287,7 @@ BEGIN
 END;
 $$;
 
-CCREATE OR REPLACE FUNCTION view_guest_logs()
+CREATE OR REPLACE FUNCTION view_guest_logs()
 RETURNS TABLE(
     visit_id INT,
     guest_name TEXT,
@@ -492,10 +492,7 @@ BEGIN
         COUNT(*) FILTER (WHERE time_out IS NULL)::INT,
         
         -- visitors checked out today
-        COUNT(*) FILTER (
-            WHERE date_of_visit = CURRENT_DATE 
-            AND time_out IS NOT NULL
-        )::INT,
+        COUNT(*) FILTER (WHERE date_of_visit = CURRENT_DATE AND time_out IS NOT NULL)::INT,
         
         -- visitors this month
         COUNT(*) FILTER (
@@ -505,3 +502,125 @@ BEGIN
 END;
 $$;
 
+---CHECK RECENT CHECKOUTS
+CREATE OR REPLACE FUNCTION get_recent_checkouts()
+RETURNS TABLE(
+    guest_name TEXT,
+    company_name VARCHAR,
+    time_in TIMESTAMP,
+    time_out TIMESTAMP,
+    duration TEXT
+)
+LANGUAGE sql
+AS $$
+SELECT
+    TRIM(
+        g.firstname
+        || CASE 
+            WHEN g.middle_initial IS NOT NULL AND g.middle_initial <> '' 
+            THEN ' ' || g.middle_initial || '.' 
+            ELSE '' 
+           END
+        || ' ' || g.lastname
+        || CASE 
+            WHEN g.suffix IS NOT NULL AND g.suffix <> '' 
+            THEN ' ' || g.suffix 
+            ELSE '' 
+           END
+    ) AS guest_name,
+    
+    vc.company_name,
+    v.time_in,
+    v.time_out,
+    
+    -- duration formatted
+    EXTRACT(HOUR FROM (v.time_out - v.time_in)) || 'h '
+    || EXTRACT(MINUTE FROM (v.time_out - v.time_in)) || 'm'
+
+FROM visit_log v
+JOIN guest g ON v.guest_id = g.guest_id
+JOIN visitor_company vc ON v.company_id = vc.company_id
+
+WHERE v.time_out IS NOT NULL
+ORDER BY v.time_out DESC
+LIMIT 5;
+$$;
+
+
+
+---FREQUEST VISITORS
+CREATE OR REPLACE FUNCTION get_frequent_visitors()
+RETURNS TABLE(
+    guest_name TEXT,
+    company_name VARCHAR,
+    total_visits BIGINT
+)
+LANGUAGE sql
+AS $$
+SELECT
+    g.firstname || ' ' || g.lastname,
+    vc.company_name,
+    COUNT(v.visit_id) AS total_visits
+
+FROM visit_log v
+JOIN guest g ON v.guest_id = g.guest_id
+JOIN visitor_company vc ON v.company_id = vc.company_id
+
+GROUP BY g.guest_id, vc.company_name
+ORDER BY total_visits DESC
+LIMIT 5;
+$$;
+
+
+---VIEW TODAYS VISITOR LOG
+CREATE OR REPLACE FUNCTION get_today_visitor_log()
+RETURNS TABLE(
+    guest_name TEXT,
+    company_name VARCHAR,
+    purpose_name VARCHAR,
+    contact_number VARCHAR,
+    contact_person VARCHAR,
+    time_in TEXT,
+    time_out TEXT
+)
+LANGUAGE sql
+AS $$
+SELECT
+    -- ✅ Proper full name format
+    g.firstname
+    || COALESCE(
+        CASE 
+            WHEN g.middle_initial IS NOT NULL AND g.middle_initial <> '' 
+            THEN ' ' || g.middle_initial || '.' 
+        END, ''
+    )
+    || ' ' || g.lastname
+    || COALESCE(
+        CASE 
+            WHEN g.suffix IS NOT NULL AND g.suffix <> '' 
+            THEN ' ' || g.suffix 
+        END, ''
+    ) AS guest_name,
+
+    vc.company_name,
+    vp.purpose_name,
+    g.contact_number,
+    e.full_name AS contact_person,
+
+    TO_CHAR(v.time_in AT TIME ZONE 'Asia/Manila', 'HH12:MI AM'),
+
+    CASE 
+        WHEN v.time_out IS NULL THEN '—'
+        ELSE TO_CHAR(v.time_out AT TIME ZONE 'Asia/Manila', 'HH12:MI AM')
+    END
+
+FROM visit_log v
+JOIN guest g ON v.guest_id = g.guest_id
+JOIN visitor_company vc ON v.company_id = vc.company_id
+JOIN employee e ON v.contact_id = e.contact_id
+JOIN visit_purpose vp ON v.purpose_id = vp.purpose_id
+
+WHERE v.date_of_visit = CURRENT_DATE
+
+ORDER BY v.time_in DESC;
+$$;

@@ -3,6 +3,11 @@ from django.db import models
 # Create your models here.
 
 from django.db import connection
+from django.utils import timezone
+from zoneinfo import ZoneInfo
+
+
+MANILA_TZ = ZoneInfo('Asia/Manila')
 
 
 def username_exists(username):
@@ -109,3 +114,98 @@ def create_user_account(
 		row = cursor.fetchone()
 
 	return row[0] if row else None
+
+
+def get_dashboard_stats():
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT total_today, currently_inside, checked_out_today, total_this_month
+			FROM get_dashboard_stats();
+			"""
+		)
+		row = cursor.fetchone()
+
+	if not row:
+		return {
+			'total_today': 0,
+			'currently_inside': 0,
+			'checked_out_today': 0,
+			'total_this_month': 0,
+		}
+
+	total_today, currently_inside, checked_out_today, total_this_month = row
+	return {
+		'total_today': total_today,
+		'currently_inside': currently_inside,
+		'checked_out_today': checked_out_today,
+		'total_this_month': total_this_month,
+	}
+
+
+def get_recent_checkouts():
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT guest_name, company_name, time_in, time_out, duration
+			FROM get_recent_checkouts();
+			"""
+		)
+		rows = cursor.fetchall()
+
+	def _format_manila_time(value):
+		if not value:
+			return ''
+
+		if not hasattr(value, 'strftime'):
+			return str(value)
+
+		datetime_value = value
+		if timezone.is_naive(datetime_value):
+			datetime_value = timezone.make_aware(datetime_value, timezone=ZoneInfo('UTC'))
+
+		datetime_value = timezone.localtime(datetime_value, MANILA_TZ)
+		return datetime_value.strftime('%I:%M %p')
+
+	recent_checkouts = []
+	for guest_name, company_name, time_in, time_out, duration in rows:
+		time_in_display = _format_manila_time(time_in)
+		time_out_display = _format_manila_time(time_out)
+		recent_checkouts.append(
+			{
+				'guest_name': guest_name,
+				'company_name': company_name,
+				'time_in': time_in_display,
+				'time_out': time_out_display,
+				'duration': duration,
+			}
+		)
+
+	return recent_checkouts
+
+
+def get_today_visitor_log():
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT guest_name, company_name, purpose_name, contact_number, contact_person, time_in, time_out
+			FROM get_today_visitor_log();
+			"""
+		)
+		rows = cursor.fetchall()
+
+	today_visitor_log = []
+	for guest_name, company_name, purpose_name, contact_number, contact_person, time_in, time_out in rows:
+		today_visitor_log.append(
+			{
+				'guest_name': guest_name,
+				'company_name': company_name,
+				'purpose_name': purpose_name,
+				'contact_number': contact_number,
+				'contact_person': contact_person,
+				'time_in': time_in,
+				'time_out': time_out,
+			}
+		)
+
+	return today_visitor_log
