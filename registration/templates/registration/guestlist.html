@@ -5,23 +5,18 @@
 
 {% block topbar %}
 <div class="flex items-center justify-between mb-8">
-    <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 596.53px; height: 46.92px;">
-        <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-        <input id="search-input" type="text" placeholder="Search guests..." class="text-sm w-full bg-transparent" style="outline: none; border: none; box-shadow: none;">
+    <div>
+        <h2 class="text-4xl font-semibold text-gray-800">Guest List</h2>
+        <p class="text-sm text-gray-400 mt-1">View and search all visitor records.</p>
     </div>
-    <div class="flex items-center gap-3">
-        <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">{{ current_full_name }}</p>
-            <p class="text-xs text-gray-400">@{{ current_username|default:'user' }}</p>
-        </div>
-        <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
+    <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 360px; height: 46.92px;">
+        <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+        <input id="search-input" type="text" placeholder="Search guests..." class="text-sm w-full bg-transparent" style="outline: #00459E; border: #00459E; box-shadow: none;">
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<h2 class="text-4xl font-semibold text-gray-800 mb-6">Guest List</h2>
-
 <!-- Filters + Export -->
 <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-3">

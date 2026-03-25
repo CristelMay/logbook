@@ -76,6 +76,54 @@ def reset_user_password(user_id, new_password):
 	return row[0] if row else None
 
 
+def get_user_profile(user_id):
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT u.user_id, u.username, p.firstname, p.lastname, p.middle_initial, p.suffix
+			FROM users u
+			JOIN person p ON u.person_id = p.person_id
+			WHERE u.user_id = %s;
+			""",
+			[user_id],
+		)
+		row = cursor.fetchone()
+
+	if not row:
+		return None
+
+	return {
+		'user_id': row[0],
+		'username': row[1],
+		'first_name': row[2] or '',
+		'last_name': row[3] or '',
+		'middle_initial': row[4] or '',
+		'suffix': row[5] or '',
+	}
+
+
+def update_user_profile(user_id, username, last_name, first_name, middle_initial, suffix, profile_pic=None):
+	with connection.cursor() as cursor:
+		if profile_pic is not None:
+			cursor.execute(
+				"""
+				UPDATE users SET username = %s, profile_pic = %s WHERE user_id = %s;
+				UPDATE person p SET firstname = %s, lastname = %s, middle_initial = %s, suffix = %s
+				FROM users u WHERE u.person_id = p.person_id AND u.user_id = %s;
+				""",
+				[username, profile_pic, user_id, first_name, last_name, middle_initial, suffix, user_id],
+			)
+		else:
+			cursor.execute(
+				"""
+				UPDATE users SET username = %s WHERE user_id = %s;
+				UPDATE person p SET firstname = %s, lastname = %s, middle_initial = %s, suffix = %s
+				FROM users u WHERE u.person_id = p.person_id AND u.user_id = %s;
+				""",
+				[username, user_id, first_name, last_name, middle_initial, suffix, user_id],
+			)
+
+
 def create_user_account(
 	username,
 	password,

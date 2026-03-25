@@ -10,16 +10,12 @@
         background-size: cover;
         background-position: center;
     }
-</style>
+</style>    
 
 <div class="flex items-center justify-between mb-8">
-    <h2 class="text-4xl font-semibold text-gray-800">Welcome, {{ current_display_name }}</h2>
-    <div class="flex items-center gap-3">
-        <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">{{ current_full_name }}</p>
-            <p class="text-xs text-gray-400">@{{ current_username|default:'user' }}</p>
-        </div>
-        <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
+    <div>
+        <h2 class="text-4xl font-semibold text-gray-800">Welcome, {{ current_display_name }} 🎉</h2>
+        <p class="text-sm text-gray-400 mt-1">Here's an overview of today's visitor activity.</p>
     </div>
 </div>
 

@@ -141,41 +141,50 @@ def change_password_handler(request, template_name='authentication/change-passwo
         return redirect('registration:login')
 
     if request.method == 'POST':
-        _clear_messages(request)
+        old_password = request.POST.get('old_password', '')
         new_password = request.POST.get('new_password', '')
         confirm_password = request.POST.get('confirm_password', '')
 
-        if len(new_password) < 8:
-            messages.error(request, 'Password must be at least 8 characters long.')
-            return render(request, template_name, context)
+        if not old_password:
+            messages.error(request, 'Current password is required.')
+        else:
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT 1 FROM users WHERE user_id = %s AND password_hash = crypt(%s, password_hash);",
+                        [user_id, old_password],
+                    )
+                    valid = cursor.fetchone()
+            except DatabaseError:
+                valid = None
 
-        if new_password != confirm_password:
-            messages.error(request, 'Passwords do not match.')
-            return render(request, template_name, context)
+            if not valid:
+                messages.error(request, 'Current password is incorrect.')
+            elif len(new_password) < 8:
+                messages.error(request, 'Password must be at least 8 characters long.')
+            elif new_password != confirm_password:
+                messages.error(request, 'Passwords do not match.')
+            else:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE users
+                        SET password_hash = crypt(%s, gen_salt('bf')),
+                            is_tempPassword = FALSE
+                        WHERE user_id = %s;
+                        """,
+                        [new_password, user_id],
+                    )
 
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                UPDATE users
-                SET password_hash = crypt(%s, gen_salt('bf')),
-                    is_tempPassword = FALSE
-                WHERE user_id = %s;
-                """,
-                [new_password, user_id],
-            )
+                auth_state['is_temp_password'] = False
+                request.session['is_temp_password'] = False
 
-        auth_state['is_temp_password'] = False
-        request.session['is_temp_password'] = False
+                from django.contrib import messages as django_messages
+                django_messages.success(request, 'Password changed successfully.')
 
-        role_name = auth_state.get('role_name')
-        if role_name == 'admin':
-            return redirect('registration:index')
-        if role_name == 'guard':
-            return redirect('registration:lobby_dashboard')
+                return redirect('registration:edit_profile', guest_id=user_id)
 
-        request.session.flush()
-        return render(request, '404.html', status=404)
-
+    context['show_change_password_modal'] = True
     return render(request, template_name, context)
 
 
