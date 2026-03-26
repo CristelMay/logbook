@@ -97,7 +97,10 @@
                     <label class="block text-[21px] font-normal text-black mt-4 mb-1">
                         Date of Visit <span class="text-red-500">*</span>
                     </label>
-                    <input type="date" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" required>
+                    <input type="date" id="date-of-visit" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" required>
+                    <script>
+                        document.getElementById('date-of-visit').value = new Date().toISOString().split('T')[0];
+                    </script>
                 </div>
 				<div class="sm:col-span-2">
 					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Your Company <span class="text-red-500">*</span></label>

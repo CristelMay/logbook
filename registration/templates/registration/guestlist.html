@@ -11,7 +11,7 @@
     </div>
     <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 360px; height: 46.92px;">
         <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-        <input id="search-input" type="text" placeholder="Search guests..." class="text-sm w-full bg-transparent" style="outline: #00459E; border: #00459E; box-shadow: none;">
+        <input id="search-input" type="text" placeholder="Search guests..." class="text-sm w-full bg-transparent" style="outline: none; border: none; box-shadow: none;">
     </div>
 </div>
 {% endblock %}
@@ -59,7 +59,7 @@
             </thead>
             <tbody id="admin-tbody">
                 {% for log in guest_logs %}
-                <tr style="border-top: 1px solid #e5e7eb;">
+                <tr style="border-top: 1px solid #e5e7eb;" data-date="{{ log.date_raw }}">
                     <td class="px-4 py-3">{{ log.guest_name }}</td>
                     <td class="px-4 py-3">{{ log.purpose_name }}</td>
                     <td class="px-4 py-3">{{ log.company_name }}</td>
@@ -75,23 +75,18 @@
                     <td class="px-4 py-3">{{ log.time_out }}</td>
                     <td class="px-4 py-3">—</td>
                 </tr>
-                {% empty %}
-                <tr style="border-top: 1px solid #e5e7eb;">
-                    <td colspan="9" class="px-4 py-8 text-center">
+                {% endfor %}
+                <tr id="admin-empty-row" style="display: none;">
+                    <td colspan="9" class="px-4 py-12 text-center">
                         <div class="flex flex-col items-center gap-2">
                             <i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i>
                             <p class="text-sm font-semibold text-gray-400">No records found</p>
+                            <p class="text-xs text-gray-300">Try adjusting your search or filters</p>
                         </div>
                     </td>
                 </tr>
-                {% endfor %}
             </tbody>
         </table>
-    </div>
-    <div id="admin-empty" class="hidden flex-col items-center justify-center py-16 text-center">
-        <i data-lucide="inbox" class="w-12 h-12 text-gray-300 mb-3"></i>
-        <p class="text-sm font-semibold text-gray-400">No records found</p>
-        <p class="text-xs text-gray-300 mt-1">Try adjusting your search or filters</p>
     </div>
     <div class="flex items-center justify-between mt-4">
         <p class="text-xs text-gray-400" id="admin-row-count"></p>
@@ -107,7 +102,7 @@
     </div>
 </div>
 
-<!-- Lobby Personnel View -->
+<!-- Lobby View -->
 <div id="lobby-table" class="bg-white rounded-2xl p-6 shadow-md hidden">
     <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
         <table class="w-full text-xs text-black border-collapse" id="lobby-data-table">
@@ -125,7 +120,7 @@
             </thead>
             <tbody id="lobby-tbody">
                 {% for log in guest_logs %}
-                <tr style="border-top: 1px solid #e5e7eb;">
+                <tr style="border-top: 1px solid #e5e7eb;" data-date="{{ log.date_raw }}">
                     <td class="px-4 py-3">{{ log.guest_name }}</td>
                     <td class="px-4 py-3">{{ log.purpose_name }}</td>
                     <td class="px-4 py-3">{{ log.company_name }}</td>
@@ -140,23 +135,18 @@
                     <td class="px-4 py-3">{{ log.time_in }}</td>
                     <td class="px-4 py-3">{{ log.time_out }}</td>
                 </tr>
-                {% empty %}
-                <tr style="border-top: 1px solid #e5e7eb;">
-                    <td colspan="8" class="px-4 py-8 text-center">
+                {% endfor %}
+                <tr id="lobby-empty-row" style="display: none;">
+                    <td colspan="8" class="px-4 py-12 text-center">
                         <div class="flex flex-col items-center gap-2">
                             <i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i>
                             <p class="text-sm font-semibold text-gray-400">No records found</p>
+                            <p class="text-xs text-gray-300">Try adjusting your search or filters</p>
                         </div>
                     </td>
                 </tr>
-                {% endfor %}
             </tbody>
         </table>
-    </div>
-    <div id="lobby-empty" class="hidden flex-col items-center justify-center py-16 text-center">
-        <i data-lucide="inbox" class="w-12 h-12 text-gray-300 mb-3"></i>
-        <p class="text-sm font-semibold text-gray-400">No records found</p>
-        <p class="text-xs text-gray-300 mt-1">Try adjusting your search or filters</p>
     </div>
     <div class="flex items-center justify-between mt-4">
         <p class="text-xs text-gray-400" id="lobby-row-count"></p>
@@ -218,21 +208,26 @@
     const pages = { admin: 1, lobby: 1 };
 
     function getAllRows(tbodyId) {
-        return Array.from(document.querySelectorAll(`#${tbodyId} tr`));
+        return Array.from(document.querySelectorAll(`#${tbodyId} tr:not([id$="-empty-row"])`));
     }
 
     function applyFilters() {
         const search = document.getElementById('search-input').value.toLowerCase();
         const status = document.getElementById('status-filter').value.toLowerCase();
+        const dateFrom = document.getElementById('date-from').value;
+        const dateTo = document.getElementById('date-to').value;
 
         ['admin', 'lobby'].forEach(prefix => {
             getAllRows(`${prefix}-tbody`).forEach(row => {
                 const text = row.textContent.toLowerCase();
                 const badge = row.querySelector('.status-badge');
                 const rowStatus = badge ? badge.textContent.trim().toLowerCase() : '';
+                const rowDate = row.dataset.date || '';
                 const matchSearch = text.includes(search);
                 const matchStatus = status === 'all' || rowStatus === status;
-                row.dataset.visible = matchSearch && matchStatus ? '1' : '0';
+                const matchFrom = !dateFrom || rowDate >= dateFrom;
+                const matchTo = !dateTo || rowDate <= dateTo;
+                row.dataset.visible = matchSearch && matchStatus && matchFrom && matchTo ? '1' : '0';
             });
             pages[prefix] = 1;
             updatePagination(prefix);
@@ -252,23 +247,14 @@
             row.style.display = i >= start && i < start + ROWS_PER_PAGE ? '' : 'none';
         });
 
+        const emptyRow = document.getElementById(`${prefix}-empty-row`);
+        emptyRow.style.display = total === 0 ? '' : 'none';
+
         const showing = Math.min(ROWS_PER_PAGE, total - start);
         document.getElementById(`${prefix}-row-count`).textContent = total === 0
             ? 'No records found'
             : `Showing ${showing} of ${total} records`;
         document.getElementById(`${prefix}-page-info`).textContent = `Page ${pages[prefix]} of ${totalPages}`;
-
-        const emptyEl = document.getElementById(`${prefix}-empty`);
-        const tableEl = document.getElementById(`${prefix}-data-table`);
-        if (total === 0) {
-            tableEl.classList.add('hidden');
-            emptyEl.classList.remove('hidden');
-            emptyEl.classList.add('flex');
-        } else {
-            tableEl.classList.remove('hidden');
-            emptyEl.classList.add('hidden');
-            emptyEl.classList.remove('flex');
-        }
     }
 
     function changePage(prefix, dir) {
@@ -289,7 +275,7 @@
 
     function exportCSV() {
         const table = document.getElementById('admin-data-table');
-        const rows = Array.from(table.querySelectorAll('tr'));
+        const rows = Array.from(table.querySelectorAll('tr')).filter(r => !r.id.endsWith('-empty-row'));
         const csv = rows.map(row =>
             Array.from(row.querySelectorAll('th, td'))
                 .map(cell => `"${cell.textContent.trim().replace(/"/g, '""')}"`)

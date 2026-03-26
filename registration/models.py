@@ -184,6 +184,7 @@ def get_guest_logs():
 			'company_name': company_name,
 			'contact_person': contact_person,
 			'purpose_name': purpose_name,
+			'date_raw': date_of_visit.strftime('%Y-%m-%d') if date_of_visit else '',
 			'date_of_visit': date_of_visit.strftime('%b %d, %Y') if date_of_visit else '',
 			'time_in': time_in.strftime('%I:%M %p') if time_in else '',
 			'time_out': time_out.strftime('%I:%M %p') if time_out else '—',
