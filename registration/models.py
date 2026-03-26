@@ -194,15 +194,16 @@ def get_guest_logs():
 
 	return guest_logs
 
-def checkout_visit(visit_id):
+def checkout_visit(visit_id, user_id=None):
+	if user_id is None:
+		raise ValueError('Missing user_id for checkout.')
+
 	with connection.cursor() as cursor:
 		cursor.execute(
 			"""
-			UPDATE visit_log
-			SET time_out = CURRENT_TIMESTAMP
-			WHERE visit_id = %s;
+			SELECT add_guest_timeout(%s, %s);
 			""",
-			[visit_id],
+			[visit_id, user_id],
 		)
 
 

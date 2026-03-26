@@ -326,8 +326,13 @@ def reset_guard_password_view(request, user_id):
 def checkout_view(request, visit_id):
     if request.method != 'POST':
         return JsonResponse({'detail': 'Method not allowed.'}, status=405)
+
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'detail': 'User session not found.'}, status=401)
+
     try:
-        checkout_visit(visit_id)
+        checkout_visit(visit_id, user_id)
         return JsonResponse({'success': True})
     except Exception as exc:
         logger.exception('Checkout failed for visit_id=%s', visit_id)

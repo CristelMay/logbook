@@ -245,20 +245,26 @@
             method: 'POST',
             headers: { 'X-CSRFToken': getCookie('csrftoken') },
         })
-        .then(res => res.json())
-        .then(data => {
-            closeCheckoutModal();
-            if (data.success) {
-                showToast('Guest checked out successfully.');
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                console.error('Checkout error:', data.detail);
-                showToast('Unable to check out right now.', true);
+        .then(async res => {
+            let data = {};
+            try {
+                data = await res.json();
+            } catch (_err) {
+                data = {};
             }
+
+            if (!res.ok || !data.success) {
+                const detail = data.detail || `Checkout failed (HTTP ${res.status}).`;
+                throw new Error(detail);
+            }
+
+            closeCheckoutModal();
+            showToast('Guest checked out successfully.');
+            setTimeout(() => location.reload(), 1500);
         })
         .catch(err => {
             console.error('Checkout fetch error:', err);
-            showToast('Unable to check out right now.', true);
+            showToast(err.message || 'Unable to check out right now.', true);
         });
     }
 

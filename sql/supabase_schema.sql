@@ -263,17 +263,28 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION add_guest_timeout(
-    p_visit_id INT
+    p_visit_id INT,
+    p_user_id INT
 )
 RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE visit_log
-    SET time_out = CURRENT_TIMESTAMP
-    WHERE visit_id = p_visit_id;
+
+UPDATE visit_log
+SET 
+    time_out = CURRENT_TIMESTAMP,
+    user_id = p_user_id
+WHERE visit_id = p_visit_id
+AND time_out IS NULL;
+
+IF NOT FOUND THEN
+    RAISE EXCEPTION 'Visit already timed out or does not exist';
+END IF;
+
 END;
 $$;
+
 
 CREATE OR REPLACE FUNCTION delete_guest_log(
     p_visit_id INT
