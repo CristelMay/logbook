@@ -164,7 +164,36 @@ def create_user_account(
 	return row[0] if row else None
 
 
-def get_active_visitors():
+def get_guest_logs():
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT visit_id, guest_name, contact_number, company_name, contact_person,
+			       purpose_name, date_of_visit, time_in, time_out, status
+			FROM view_guest_logs();
+			"""
+		)
+		rows = cursor.fetchall()
+
+	guest_logs = []
+	for visit_id, guest_name, contact_number, company_name, contact_person, purpose_name, date_of_visit, time_in, time_out, status in rows:
+		guest_logs.append({
+			'visit_id': visit_id,
+			'guest_name': guest_name,
+			'contact_number': contact_number,
+			'company_name': company_name,
+			'contact_person': contact_person,
+			'purpose_name': purpose_name,
+			'date_of_visit': date_of_visit.strftime('%b %d, %Y') if date_of_visit else '',
+			'time_in': time_in.strftime('%I:%M %p') if time_in else '',
+			'time_out': time_out.strftime('%I:%M %p') if time_out else '—',
+			'status': status,
+		})
+
+	return guest_logs
+
+
+
 	with connection.cursor() as cursor:
 		cursor.execute(
 			"""
@@ -185,6 +214,29 @@ def get_active_visitors():
 				'time_in': time_in,
 			}
 		)
+
+	return active_visitors
+
+
+def get_active_visitors():
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT guest_name, company_name, purpose_name, contact_person, time_in
+			FROM get_active_visitors();
+			"""
+		)
+		rows = cursor.fetchall()
+
+	active_visitors = []
+	for guest_name, company_name, purpose_name, contact_person, time_in in rows:
+		active_visitors.append({
+			'guest_name': guest_name,
+			'company_name': company_name,
+			'purpose_name': purpose_name,
+			'contact_person': contact_person,
+			'time_in': time_in,
+		})
 
 	return active_visitors
 

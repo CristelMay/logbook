@@ -28,7 +28,7 @@
     </div>
     <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">
         <i data-lucide="door-open" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
-        <p class="text-5xl font-bold text-white mt-1 mb-2">{{ active_visitors|length }}</p>
+        <p class="text-5xl font-bold text-white mt-1 mb-2">{{ stats.currently_inside|default:0 }}</p>
         <p class="text-lg font-semibold text-white">Currently Inside</p>
     </div>
     <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">

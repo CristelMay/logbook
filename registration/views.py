@@ -20,6 +20,7 @@ from .models import (
     get_active_visitors,
     get_dashboard_stats,
     get_frequent_visitors,
+    get_guest_logs,
     get_guard_info,
     get_recent_checkouts,
     get_today_visitor_log,
@@ -322,7 +323,12 @@ def reset_guard_password_view(request, user_id):
 
 @role_required('admin', 'guard')
 def guestlist_view(request):
-    return render(request, 'registration/guestlist.html')
+    guest_logs = []
+    try:
+        guest_logs = get_guest_logs()
+    except DatabaseError:
+        pass
+    return render(request, 'registration/guestlist.html', {'guest_logs': guest_logs})
 
 @role_required('admin', 'guard')
 def edit_profile_view(request, guest_id):
