@@ -17,6 +17,7 @@ from authentication.views import (
 )
 from .models import (
     create_user_account,
+    get_active_visitors,
     get_dashboard_stats,
     get_guard_info,
     get_recent_checkouts,
@@ -105,8 +106,22 @@ def lobby_dashboard(request):
             extra_context={'require_password_change': True},
         )
 
+    stats = {'total_today': 0, 'currently_inside': 0, 'checked_out_today': 0}
+    active_visitors = []
+    try:
+        stats = get_dashboard_stats()
+    except DatabaseError:
+        pass
+
+    try:
+        active_visitors = get_active_visitors()
+    except DatabaseError:
+        pass
+
     context = {
         'require_password_change': require_password_change,
+        'stats': stats,
+        'active_visitors': active_visitors,
     }
     return render(request, "registration/lobby-dashboard.html", context)
 

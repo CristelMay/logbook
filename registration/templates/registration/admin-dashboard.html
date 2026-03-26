@@ -39,10 +39,10 @@
 </div>
 
 <!-- Bottom Cards Row 1 -->
-<div class="grid grid-cols-2 gap-6 mb-6">
+<div class="grid grid-cols-5 gap-6 mb-6">
 
     <!-- Recent Check-outs -->
-    <div class="bg-white rounded-2xl p-6 shadow-md">
+    <div class="bg-white rounded-2xl p-6 shadow-md col-span-3">
         <h3 class="text-xl font-semibold text-black mb-4">Recent Check-outs</h3>
         {% if recent_checkouts_error %}
         <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
@@ -80,7 +80,7 @@
     </div>
 
     <!-- Frequent Visitors -->
-    <div class="bg-white rounded-2xl p-6 shadow-md">
+    <div class="bg-white rounded-2xl p-6 shadow-md col-span-2">
         <h3 class="text-xl font-semibold text-black mb-4">Frequent Visitors</h3>
         <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
             <table class="w-full text-xs text-black border-collapse">

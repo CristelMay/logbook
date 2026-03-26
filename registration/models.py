@@ -164,6 +164,31 @@ def create_user_account(
 	return row[0] if row else None
 
 
+def get_active_visitors():
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT guest_name, company_name, purpose_name, contact_person, time_in
+			FROM get_active_visitors();
+			"""
+		)
+		rows = cursor.fetchall()
+
+	active_visitors = []
+	for guest_name, company_name, purpose_name, contact_person, time_in in rows:
+		active_visitors.append(
+			{
+				'guest_name': guest_name,
+				'company_name': company_name,
+				'purpose_name': purpose_name,
+				'contact_person': contact_person,
+				'time_in': time_in,
+			}
+		)
+
+	return active_visitors
+
+
 def get_dashboard_stats():
 	with connection.cursor() as cursor:
 		cursor.execute(

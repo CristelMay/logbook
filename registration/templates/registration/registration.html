@@ -14,20 +14,44 @@
 		<img src="{{ register_bg }}" alt="" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -10; pointer-events: none;">
 	</div>
 	{% if messages %}
+	{% for message in messages %}
+	{% if message.tags == 'success' %}
+	<div id="success-modal" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4);">
+		<div class="bg-white rounded-3xl shadow-2xl px-16 py-14 flex flex-col items-center text-center" style="max-width: 36rem; width: 100%;">
+			<div class="flex items-center justify-center w-24 h-24 rounded-full mb-6" style="background-color: #f0fdf4;">
+				<svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #22c55e;">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+				</svg>
+			</div>
+			<h2 class="text-2xl font-extrabold text-[#00459E] mb-2">IKSI GUEST REGISTRATION</h2>
+			<p class="text-lg font-semibold text-gray-700">Thank you for visiting Innodata!</p>
+		</div>
+	</div>
+	<script>
+		setTimeout(() => {
+			const modal = document.getElementById('success-modal');
+			if (modal) {
+				modal.style.transition = 'opacity 0.5s ease';
+				modal.style.opacity = '0';
+				setTimeout(() => modal.remove(), 500);
+			}
+		}, 5000);
+	</script>
+	{% else %}
 	<div id="toast-container" class="px-4" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;">
 		<div onclick="dismissAllToasts()" style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.25);"></div>
 		<div class="space-y-3" style="position: relative; width: 100%; max-width: 28rem;">
-		{% for message in messages %}
-		<div class="toast rounded-2xl border px-5 py-4 shadow-2xl bg-white {% if message.tags == 'success' %}border-green-300{% else %}border-slate-300{% endif %}" style="transform-origin: center;">
+		<div class="toast rounded-2xl border px-5 py-4 shadow-2xl bg-white border-slate-300" style="transform-origin: center;">
 			<div class="flex items-start gap-3">
-				<div class="mt-0.5 h-2.5 w-2.5 rounded-full {% if message.tags == 'success' %}bg-green-500{% else %}bg-slate-500{% endif %}"></div>
+				<div class="mt-0.5 h-2.5 w-2.5 rounded-full bg-slate-500"></div>
 				<p class="flex-1 text-base font-semibold text-slate-800">{{ message }}</p>
 				<button type="button" class="text-slate-500 hover:text-slate-700 text-xl leading-none" onclick="dismissToast(this)" aria-label="Close notification">&times;</button>
 			</div>
 		</div>
-		{% endfor %}
 		</div>
 	</div>
+	{% endif %}
+	{% endfor %}
 	{% endif %}
 	<div class="w-full max-w-[85rem] bg-white rounded-[4rem] shadow-2xl mt-8 mx-8 mb-16 p-16 relative z-10">
 		<div class="flex flex-col items-center mb-8">
