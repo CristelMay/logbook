@@ -169,14 +169,14 @@ def get_guest_logs():
 		cursor.execute(
 			"""
 			SELECT visit_id, guest_name, contact_number, company_name, contact_person,
-			       purpose_name, date_of_visit, time_in, time_out, status
+			       purpose_name, guard_name, date_of_visit, time_in, time_out, status
 			FROM view_guest_logs();
 			"""
 		)
 		rows = cursor.fetchall()
 
 	guest_logs = []
-	for visit_id, guest_name, contact_number, company_name, contact_person, purpose_name, date_of_visit, time_in, time_out, status in rows:
+	for visit_id, guest_name, contact_number, company_name, contact_person, purpose_name, guard_name, date_of_visit, time_in, time_out, status in rows:
 		guest_logs.append({
 			'visit_id': visit_id,
 			'guest_name': guest_name,
@@ -184,6 +184,7 @@ def get_guest_logs():
 			'company_name': company_name,
 			'contact_person': contact_person,
 			'purpose_name': purpose_name,
+			'guard_name': guard_name or '—',
 			'date_raw': date_of_visit.strftime('%Y-%m-%d') if date_of_visit else '',
 			'date_of_visit': date_of_visit.strftime('%b %d, %Y') if date_of_visit else '',
 			'time_in': time_in.strftime('%I:%M %p') if time_in else '',
@@ -193,50 +194,39 @@ def get_guest_logs():
 
 	return guest_logs
 
-
-
+def checkout_visit(visit_id):
 	with connection.cursor() as cursor:
 		cursor.execute(
 			"""
-			SELECT guest_name, company_name, purpose_name, contact_person, time_in
-			FROM get_active_visitors();
-			"""
+			UPDATE visit_log
+			SET time_out = CURRENT_TIMESTAMP
+			WHERE visit_id = %s;
+			""",
+			[visit_id],
 		)
-		rows = cursor.fetchall()
-
-	active_visitors = []
-	for guest_name, company_name, purpose_name, contact_person, time_in in rows:
-		active_visitors.append(
-			{
-				'guest_name': guest_name,
-				'company_name': company_name,
-				'purpose_name': purpose_name,
-				'contact_person': contact_person,
-				'time_in': time_in,
-			}
-		)
-
-	return active_visitors
 
 
 def get_active_visitors():
 	with connection.cursor() as cursor:
 		cursor.execute(
 			"""
-			SELECT guest_name, company_name, purpose_name, contact_person, time_in
-			FROM get_active_visitors();
+			SELECT visit_id, guest_name, company_name, purpose_name, contact_person, time_in
+			FROM view_guest_logs()
+			WHERE status = 'Checked In'
+			AND date_of_visit = CURRENT_DATE;
 			"""
 		)
 		rows = cursor.fetchall()
 
 	active_visitors = []
-	for guest_name, company_name, purpose_name, contact_person, time_in in rows:
+	for visit_id, guest_name, company_name, purpose_name, contact_person, time_in in rows:
 		active_visitors.append({
+			'visit_id': visit_id,
 			'guest_name': guest_name,
 			'company_name': company_name,
 			'purpose_name': purpose_name,
 			'contact_person': contact_person,
-			'time_in': time_in,
+			'time_in': time_in.strftime('%I:%M %p') if time_in else '',
 		})
 
 	return active_visitors

@@ -61,7 +61,12 @@
                     <td class="px-4 py-3">{{ visitor.contact_person }}</td>
                     <td class="px-4 py-3">{{ visitor.time_in }}</td>
                     <td class="px-4 py-3">
-                        <button onclick="openCheckoutModal('{{ visitor.guest_name }}', '{{ visitor.time_in }}')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
+                        <button
+                            data-name="{{ visitor.guest_name }}"
+                            data-timein="{{ visitor.time_in }}"
+                            data-visitid="{{ visitor.visit_id }}"
+                            onclick="openCheckoutModal(this.dataset.name, this.dataset.timein, this.dataset.visitid)"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
                             <i data-lucide="log-out" class="w-3 h-3"></i> Check Out
                         </button>
                     </td>
@@ -118,7 +123,7 @@
         </div>
         <div class="flex gap-3 justify-end">
             <button onclick="closeCheckoutModal()" class="px-6 py-2.5 rounded-xl border text-sm font-medium text-gray-600 hover:bg-gray-50" style="border-color: #e5e7eb;">Cancel</button>
-            <button class="px-6 py-2.5 rounded-xl text-sm font-medium text-white transition hover:opacity-80" style="background-color: #00459E;">Confirm Check-out</button>
+            <button onclick="confirmCheckout()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white transition hover:opacity-80" style="background-color: #00459E;">Confirm Check-out</button>
         </div>
     </div>
 </div>
@@ -207,12 +212,22 @@
         modal.classList.remove('flex');
     }
 
-    function openCheckoutModal(name, timeIn) {
+    let currentVisitId = null;
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    function openCheckoutModal(name, timeIn, visitId) {
         const now = new Date();
         const timeOut = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         document.getElementById('modal-name').textContent = name;
         document.getElementById('modal-timein').textContent = timeIn;
         document.getElementById('modal-timeout').textContent = timeOut;
+        currentVisitId = visitId;
         const modal = document.getElementById('checkoutModal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -222,6 +237,40 @@
         const modal = document.getElementById('checkoutModal');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+    }
+
+    function confirmCheckout() {
+        if (!currentVisitId) return;
+        fetch(`/logbook/visits/${currentVisitId}/checkout/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        })
+        .then(res => res.json())
+        .then(data => {
+            closeCheckoutModal();
+            if (data.success) {
+                showToast('Guest checked out successfully.');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                console.error('Checkout error:', data.detail);
+                showToast('Unable to check out right now.', true);
+            }
+        })
+        .catch(err => {
+            console.error('Checkout fetch error:', err);
+            showToast('Unable to check out right now.', true);
+        });
+    }
+
+    function showToast(message, isError = false) {
+        const existing = document.getElementById('checkout-toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.id = 'checkout-toast';
+        toast.style.cssText = `position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.25rem;border-radius:1rem;background-color:${isError ? '#ef4444' : '#22c55e'};box-shadow:0 10px 15px rgba(0,0,0,0.1);color:white;font-size:0.875rem;font-weight:500;`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
 </script>
 {% endblock %}

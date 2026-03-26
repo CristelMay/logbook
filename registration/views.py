@@ -16,6 +16,7 @@ from authentication.views import (
     logout_handler,
 )
 from .models import (
+    checkout_visit,
     create_user_account,
     get_active_visitors,
     get_dashboard_stats,
@@ -320,6 +321,18 @@ def reset_guard_password_view(request, user_id):
             'temporary_password': temporary_password,
         }
     )
+
+@role_required('admin', 'guard')
+def checkout_view(request, visit_id):
+    if request.method != 'POST':
+        return JsonResponse({'detail': 'Method not allowed.'}, status=405)
+    try:
+        checkout_visit(visit_id)
+        return JsonResponse({'success': True})
+    except Exception as exc:
+        logger.exception('Checkout failed for visit_id=%s', visit_id)
+        return JsonResponse({'detail': str(exc)}, status=500)
+
 
 @role_required('admin', 'guard')
 def guestlist_view(request):

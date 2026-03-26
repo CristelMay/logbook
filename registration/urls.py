@@ -15,5 +15,6 @@ urlpatterns = [
     path('personnel/<int:user_id>/', views.guard_info_view, name='guard_info'),
     path('personnel/<int:user_id>/reset-password/', views.reset_guard_password_view, name='reset_guard_password'),
     path('guests/', views.guestlist_view, name='guestlist'),
+    path('visits/<int:visit_id>/checkout/', views.checkout_view, name='checkout'),
     path('personnel/<int:guest_id>/edit/', views.edit_profile_view, name='edit_profile'),
 ]

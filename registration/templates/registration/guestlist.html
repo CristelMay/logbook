@@ -41,7 +41,7 @@
 </div>
 
 <!-- Admin View -->
-<div id="admin-table" class="bg-white rounded-2xl p-6 shadow-md">
+<div id="admin-table" class="bg-white rounded-2xl p-6 shadow-md {% if is_guard_role %}hidden{% endif %}">
     <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
         <table class="w-full text-xs text-black border-collapse" id="admin-data-table">
             <thead>
@@ -73,7 +73,7 @@
                     <td class="px-4 py-3">{{ log.date_of_visit }}</td>
                     <td class="px-4 py-3">{{ log.time_in }}</td>
                     <td class="px-4 py-3">{{ log.time_out }}</td>
-                    <td class="px-4 py-3">—</td>
+                    <td class="px-4 py-3">{{ log.guard_name }}</td>
                 </tr>
                 {% endfor %}
                 <tr id="admin-empty-row" style="display: none;">
@@ -103,7 +103,7 @@
 </div>
 
 <!-- Lobby View -->
-<div id="lobby-table" class="bg-white rounded-2xl p-6 shadow-md hidden">
+<div id="lobby-table" class="bg-white rounded-2xl p-6 shadow-md {% if not is_guard_role %}hidden{% endif %}">
     <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
         <table class="w-full text-xs text-black border-collapse" id="lobby-data-table">
             <thead>
@@ -133,7 +133,20 @@
                     </td>
                     <td class="px-4 py-3">{{ log.date_of_visit }}</td>
                     <td class="px-4 py-3">{{ log.time_in }}</td>
-                    <td class="px-4 py-3">{{ log.time_out }}</td>
+                    <td class="px-4 py-3">
+                        {% if log.status == 'Checked In' %}
+                        <button
+                            data-name="{{ log.guest_name }}"
+                            data-timein="{{ log.time_in }}"
+                            data-visitid="{{ log.visit_id }}"
+                            onclick="openCheckoutModal(this.dataset.name, this.dataset.timein, this.dataset.visitid)"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
+                            <i data-lucide="log-out" class="w-3 h-3"></i> Check Out
+                        </button>
+                        {% else %}
+                        {{ log.time_out }}
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
                 <tr id="lobby-empty-row" style="display: none;">
@@ -198,14 +211,17 @@
         </div>
         <div class="flex gap-3 justify-end">
             <button onclick="closeCheckoutModal()" class="px-6 py-2.5 rounded-xl border text-sm font-medium text-gray-600 hover:bg-gray-50" style="border-color: #e5e7eb;">Cancel</button>
-            <button class="px-6 py-2.5 rounded-xl text-sm font-medium text-white transition hover:opacity-80" style="background-color: #00459E;">Confirm Check-out</button>
+            <button onclick="confirmCheckout()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white transition hover:opacity-80" style="background-color: #00459E;">Confirm Check-out</button>
         </div>
     </div>
 </div>
 
+{% if is_guard_role %}<span id="is-guard-role"></span>{% endif %}
+
 <script>
     const ROWS_PER_PAGE = 10;
     const pages = { admin: 1, lobby: 1 };
+    let currentVisitId = null;
 
     function getAllRows(tbodyId) {
         return Array.from(document.querySelectorAll(`#${tbodyId} tr:not([id$="-empty-row"])`));
@@ -288,12 +304,13 @@
         a.click();
     }
 
-    function openCheckoutModal(name, timeIn) {
+    function openCheckoutModal(name, timeIn, visitId) {
         const now = new Date();
         const timeOut = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         document.getElementById('modal-name').textContent = name;
         document.getElementById('modal-timein').textContent = timeIn;
         document.getElementById('modal-timeout').textContent = timeOut;
+        currentVisitId = visitId;
         const modal = document.getElementById('checkoutModal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -305,12 +322,58 @@
         modal.classList.remove('flex');
     }
 
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    function confirmCheckout() {
+        if (!currentVisitId) return;
+        fetch(`/logbook/visits/${currentVisitId}/checkout/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        })
+        .then(res => res.json())
+        .then(data => {
+            closeCheckoutModal();
+            if (data.success) {
+                showToast('Guest checked out successfully.');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                console.error('Checkout error:', data.detail);
+                showToast('Unable to check out right now.', true);
+            }
+        })
+        .catch(err => {
+            console.error('Checkout fetch error:', err);
+            showToast('Unable to check out right now.', true);
+        });
+    }
+
+    function showToast(message, isError = false) {
+        const existing = document.getElementById('checkout-toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.id = 'checkout-toast';
+        toast.style.cssText = `position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.25rem;border-radius:1rem;background-color:${isError ? '#ef4444' : '#22c55e'};box-shadow:0 10px 15px rgba(0,0,0,0.1);color:white;font-size:0.875rem;font-weight:500;`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
     document.getElementById('search-input').addEventListener('input', applyFilters);
     document.getElementById('status-filter').addEventListener('change', applyFilters);
     document.getElementById('date-from').addEventListener('change', applyFilters);
     document.getElementById('date-to').addEventListener('change', applyFilters);
 
-    updatePagination('admin');
-    updatePagination('lobby');
+    const isGuard = !!document.getElementById('is-guard-role');
+    if (isGuard) {
+        updatePagination('lobby');
+    } else {
+        updatePagination('admin');
+    }
 </script>
+
 {% endblock %}
