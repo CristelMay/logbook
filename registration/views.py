@@ -2,6 +2,7 @@ from django.db import DatabaseError, IntegrityError
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+import logging
 from PIL import Image
 from PIL import UnidentifiedImageError
 from io import BytesIO
@@ -16,7 +17,10 @@ from authentication.views import (
 )
 from .models import (
     create_user_account,
+    get_dashboard_stats,
     get_guard_info,
+    get_recent_checkouts,
+    get_today_visitor_log,
     get_user_profile,
     reset_user_password,
     update_user_profile,
@@ -26,6 +30,9 @@ from .models import (
 from .services import create_guest_visit
 from .storage import get_profile_image_url, upload_profile_image
 from .validators import validate_guest_registration_payload
+
+
+logger = logging.getLogger(__name__)
 
 
 def login_view(request):
@@ -47,7 +54,45 @@ def logout_view(request):
 
 @role_required('admin')
 def index(request):
-    return render(request, "registration/admin-dashboard.html")
+    stats = {
+        'total_today': 0,
+        'currently_inside': 0,
+        'checked_out_today': 0,
+        'total_this_month': 0,
+    }
+    recent_checkouts = []
+    recent_checkouts_error = None
+    today_visitor_log = []
+    today_visitor_log_error = None
+
+    try:
+        stats = get_dashboard_stats()
+    except DatabaseError:
+        pass
+
+    try:
+        recent_checkouts = get_recent_checkouts()
+    except DatabaseError as exc:
+        recent_checkouts_error = str(exc)
+        logger.exception('Failed to fetch recent check-outs')
+
+    try:
+        today_visitor_log = get_today_visitor_log()
+    except DatabaseError as exc:
+        today_visitor_log_error = str(exc)
+        logger.exception("Failed to fetch today's visitor log")
+
+    return render(
+        request,
+        "registration/admin-dashboard.html",
+        {
+            'stats': stats,
+            'recent_checkouts': recent_checkouts,
+            'recent_checkouts_error': recent_checkouts_error,
+            'today_visitor_log': today_visitor_log,
+            'today_visitor_log_error': today_visitor_log_error,
+        },
+    )
 
 @role_required('guard')
 def lobby_dashboard(request):
@@ -67,9 +112,24 @@ def lobby_dashboard(request):
 
 @role_required('admin', 'guard')
 def registration_view(request):
+    return _handle_registration_submission(
+        request,
+        success_redirect_name='registration:register',
+    )
+
+
+def public_registration_view(request):
+    return _handle_registration_submission(
+        request,
+        success_redirect_name='registration:public_register',
+    )
+
+
+def _handle_registration_submission(request, success_redirect_name):
     context = {
         'form_data': {},
         'errors': {},
+        'form_action_name': success_redirect_name,
     }
 
     if request.method == 'POST':
@@ -84,7 +144,7 @@ def registration_view(request):
                     request,
                     'Registration submitted successfully.'
                 )
-                return redirect('registration:register')
+                return redirect(success_redirect_name)
             except DatabaseError:
                 context['errors']['non_field'] = (
                     'Unable to save guest visit right now. Please try again.'

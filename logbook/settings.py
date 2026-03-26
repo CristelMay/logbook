@@ -124,6 +124,7 @@ DATABASES = {
             'client_encoding': 'UTF8',
             'sslmode': os.getenv('DB_SSLMODE', 'require'),
             'connect_timeout': int(os.getenv('DB_CONNECT_TIMEOUT', '10')),
+            'options': f"-c timezone={os.getenv('DB_TIMEZONE', 'Asia/Manila')}",
         },
     }
 }
@@ -153,7 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 

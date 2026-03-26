@@ -38,7 +38,7 @@
 		<div class="mb-6 text-black-600 text-[21px] text-center mt-[3rem]">
 			Thank you for visiting us! Please take a moment to complete the registration form below. Your information helps us maintain a secure and organized environment while ensuring that all guests receive the appropriate assistance during their visit. Rest assured, all details provided will be kept confidential and used solely for administrative and security purposes. We appreciate your cooperation and hope you have a pleasant experience with us.
 		</div>
-		<form method="post" action="{% url 'registration:register' %}" class="bg-white rounded-[2rem] shadow p-6 border-2 border-black mt-[5rem] p-[4rem] shadow-md">
+		<form method="post" action="{% url form_action_name|default:'registration:register' %}" class="bg-white rounded-[2rem] shadow p-6 border-2 border-black mt-[5rem] p-[4rem] shadow-md">
 			{% csrf_token %}
 			{% if errors.non_field %}
 				<p class="mb-4 text-red-600 text-sm font-semibold">{{ errors.non_field }}</p>

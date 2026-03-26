@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="text-right mb-8">
-                        <button type="button" onclick="openForgotModal()" class="text-xs text-[#00459E] hover:underline">Forgot password?</button>
+                        <a href="#" class="text-xs text-[#00459E] hover:underline">Forgot password?</a>
                     </div>
 
                     {% if messages %}
@@ -78,42 +78,7 @@
 
     </div>
 
-    <!-- Forgot Password Modal -->
-    <div id="forgotModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
-        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">Forgot Password</h3>
-                <button onclick="closeForgotModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
-            <div class="flex flex-col items-center text-center gap-3 mb-6">
-                <div class="w-14 h-14 rounded-full flex items-center justify-center mb-1" style="background-color: #EFF6FF;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #00459E;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                    </svg>
-                </div>
-                <p class="text-sm text-gray-600">Please approach the <span class="font-semibold text-gray-800">Admin</span> to reset your password.</p>
-                <!-- <p class="text-xs text-gray-400">The admin will generate a temporary password for you.</p> -->
-            </div>
-            <button onclick="closeForgotModal()" class="w-full py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-80 transition" style="background-color: #00459E;">Got it</button>
-        </div>
-    </div>
-
     <script>
-        function openForgotModal() {
-            const modal = document.getElementById('forgotModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-        function closeForgotModal() {
-            const modal = document.getElementById('forgotModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
         function togglePassword() {
             const input = document.getElementById('password');
             const icon = document.getElementById('eye-icon');
@@ -129,3 +94,4 @@
 
 </body>
 </html>
+
