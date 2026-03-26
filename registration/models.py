@@ -170,14 +170,14 @@ def get_guest_logs():
 		cursor.execute(
 			"""
 			SELECT visit_id, guest_name, contact_number, company_name, contact_person,
-			       purpose_name, guard_name, date_of_visit, time_in, time_out, status
+			       purpose_name, guard_name, date_of_visit, time_in, time_out, status, assisted_by
 			FROM view_guest_logs();
 			"""
 		)
 		rows = cursor.fetchall()
 
 	guest_logs = []
-	for visit_id, guest_name, contact_number, company_name, contact_person, purpose_name, guard_name, date_of_visit, time_in, time_out, status in rows:
+	for visit_id, guest_name, contact_number, company_name, contact_person, purpose_name, guard_name, date_of_visit, time_in, time_out, status, assisted_by in rows:
 		guest_logs.append({
 			'visit_id': visit_id,
 			'guest_name': guest_name,
@@ -191,6 +191,7 @@ def get_guest_logs():
 			'time_in': time_in.strftime('%I:%M %p') if time_in else '',
 			'time_out': time_out.strftime('%I:%M %p') if time_out else '—',
 			'status': status,
+			'assisted_by': assisted_by or '—',
 		})
 
 	return guest_logs

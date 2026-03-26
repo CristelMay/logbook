@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS visit_log (
     contact_id INT NOT NULL,
     purpose_id INT NOT NULL,
     user_id INT NOT NULL,
+    checkout_by INT,
     CONSTRAINT fk_visit_guest FOREIGN KEY (guest_id)
         REFERENCES guest(guest_id)
         ON DELETE CASCADE,
@@ -91,7 +92,10 @@ CREATE TABLE IF NOT EXISTS visit_log (
         ON DELETE RESTRICT,
     CONSTRAINT fk_visit_user FOREIGN KEY (user_id)
         REFERENCES users(user_id)
-        ON DELETE RESTRICT
+        ON DELETE RESTRICT,
+    CONSTRAINT fk_visit_checkout_by FOREIGN KEY (checkout_by)
+        REFERENCES users(user_id)
+        ON DELETE SET NULL
 );
 
 -- =============================
@@ -274,7 +278,7 @@ BEGIN
 UPDATE visit_log
 SET 
     time_out = CURRENT_TIMESTAMP,
-    user_id = p_user_id
+    checkout_by = p_user_id
 WHERE visit_id = p_visit_id
 AND time_out IS NULL;
 
@@ -310,7 +314,8 @@ RETURNS TABLE(
     date_of_visit DATE,
     time_in TIMESTAMP,
     time_out TIMESTAMP,
-    status VARCHAR
+    status VARCHAR,
+    assisted_by TEXT
 )
 LANGUAGE plpgsql
 AS $$
@@ -362,7 +367,20 @@ SELECT
         WHEN v.time_out IS NOT NULL THEN 'Checked Out'::VARCHAR
         WHEN v.time_in IS NOT NULL AND v.time_out IS NULL THEN 'Checked In'::VARCHAR
         ELSE 'Pending'::VARCHAR
-    END AS status
+    END AS status,
+
+    pc.firstname
+    || CASE 
+        WHEN pc.middle_initial IS NOT NULL AND pc.middle_initial <> '' 
+        THEN ' ' || pc.middle_initial || '.' 
+        ELSE '' 
+       END
+    || ' ' || pc.lastname
+    || CASE 
+        WHEN pc.suffix IS NOT NULL AND pc.suffix <> '' 
+        THEN ' ' || pc.suffix 
+        ELSE '' 
+       END AS assisted_by
 
 FROM visit_log v
 LEFT JOIN guest g ON v.guest_id = g.guest_id
@@ -371,6 +389,8 @@ LEFT JOIN employee e ON v.contact_id = e.contact_id
 LEFT JOIN visit_purpose vp ON v.purpose_id = vp.purpose_id
 LEFT JOIN users u ON v.user_id = u.user_id
 LEFT JOIN person p ON u.person_id = p.person_id
+LEFT JOIN users uc ON v.checkout_by = uc.user_id
+LEFT JOIN person pc ON uc.person_id = pc.person_id
 
 ORDER BY v.time_in DESC;
 
