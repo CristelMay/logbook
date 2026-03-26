@@ -28,11 +28,10 @@
 
 <form method="POST" enctype="multipart/form-data" class="flex flex-col gap-6">
     {% csrf_token %}
-
     <div class="flex gap-6 items-stretch">
 
         <!-- Column 1: Profile Card -->
-        <div class="bg-white rounded-2xl shadow-md w-64 flex-shrink-0 flex flex-col items-center px-6 py-8 text-center">
+        <div class="bg-white rounded-2xl shadow-md w-64 flex-shrink-0 flex flex-col items-center px-6 py-8 text-center self-stretch">
             <div class="relative mb-4">
                 <img id="preview-photo"
                     src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}"
@@ -49,7 +48,6 @@
         <!-- Column 2: Fields -->
         <div class="flex flex-col gap-6 flex-1">
 
-            {% if not is_admin_role %}
             <div class="bg-white rounded-2xl shadow-md px-8 py-6">
                 <div class="flex items-center justify-between mb-5">
                     <p class="text-base font-semibold text-gray-800">Personal Information</p>
@@ -80,23 +78,17 @@
                     </div>
                 </div>
             </div>
-            {% endif %}
 
             <div class="bg-white rounded-2xl shadow-md px-8 py-6">
                 <div class="flex items-center justify-between mb-5">
                     <p class="text-base font-semibold text-gray-800">Account Information</p>
-                    {% if is_admin_role %}
-                    <button type="button" id="edit-btn" onclick="enableEdit()" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium text-white transition" style="background-color: #00459E; border: 1px solid #00459E;">
-                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Edit
-                    </button>
-                    {% endif %}
                 </div>
                 <div class="flex flex-col gap-4">
                     <div class="flex items-center gap-4">
                         <label class="text-sm text-gray-600 w-36 flex-shrink-0">Username <span class="text-red-500">*</span></label>
                         <input type="text" name="username" value="{{ profile.username }}" placeholder="e.g. juandelacruz"
                             class="field flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#00459E] read-only:bg-gray-50 read-only:text-gray-400 read-only:cursor-not-allowed" readonly required>
-                    </div>                    
+                    </div>
                     <div class="flex items-center gap-4">
                         <label class="text-sm text-gray-600 w-36 flex-shrink-0">Password</label>
                         <button type="button" onclick="openChangePasswordModal()" class="px-5 py-2 rounded-full border text-sm font-medium text-gray-600 hover:bg-[#00459E] hover:text-white transition" style="border-color: #e5e7eb;">Change</button>
@@ -184,7 +176,7 @@
             originalValues[input.name] = input.value;
             input.readOnly = false;
         });
-        document.getElementById('edit-btn').classList.add('hidden');
+        document.getElementById('edit-btn').classList.add('invisible');
         document.getElementById('camera-label').classList.remove('hidden');
         document.getElementById('camera-label').classList.add('flex');
         document.getElementById('action-btns').classList.remove('hidden');
@@ -196,7 +188,7 @@
             input.value = originalValues[input.name] ?? input.value;
             input.readOnly = true;
         });
-        document.getElementById('edit-btn').classList.remove('hidden');
+        document.getElementById('edit-btn').classList.remove('invisible');
         document.getElementById('camera-label').classList.add('hidden');
         document.getElementById('camera-label').classList.remove('flex');
         document.getElementById('action-btns').classList.add('hidden');

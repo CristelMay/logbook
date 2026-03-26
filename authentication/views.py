@@ -132,7 +132,7 @@ def login_handler(request, template_name='registration/login.html'):
     return render(request, template_name, context)
 
 
-def change_password_handler(request, template_name='authentication/change-password.html', extra_context=None):
+def change_password_handler(request, template_name, extra_context=None):
     context = extra_context or {}
     auth_state = get_auth_state(request)
     user_id = auth_state.get('user_id')
