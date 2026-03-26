@@ -298,7 +298,8 @@ RETURNS TABLE(
     guard_name TEXT,
     date_of_visit DATE,
     time_in TIMESTAMP,
-    time_out TIMESTAMP
+    time_out TIMESTAMP,
+    status VARCHAR
 )
 LANGUAGE plpgsql
 AS $$
@@ -343,7 +344,14 @@ SELECT
     v.date_of_visit,
 
     v.time_in AT TIME ZONE 'Asia/Manila',
-    v.time_out AT TIME ZONE 'Asia/Manila'
+    v.time_out AT TIME ZONE 'Asia/Manila',
+    
+    -- ✅ Status: Checked In or Checked Out with explicit type casting
+    CASE
+        WHEN v.time_out IS NOT NULL THEN 'Checked Out'::VARCHAR
+        WHEN v.time_in IS NOT NULL AND v.time_out IS NULL THEN 'Checked In'::VARCHAR
+        ELSE 'Pending'::VARCHAR
+    END AS status
 
 FROM visit_log v
 LEFT JOIN guest g ON v.guest_id = g.guest_id
@@ -352,9 +360,12 @@ LEFT JOIN employee e ON v.contact_id = e.contact_id
 LEFT JOIN visit_purpose vp ON v.purpose_id = vp.purpose_id
 LEFT JOIN users u ON v.user_id = u.user_id
 LEFT JOIN person p ON u.person_id = p.person_id
+
 ORDER BY v.time_in DESC;
+
 END;
 $$;
+
 
 CREATE OR REPLACE FUNCTION generate_report_by_date(
     p_start DATE,
