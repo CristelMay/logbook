@@ -184,6 +184,29 @@ def get_recent_checkouts():
 	return recent_checkouts
 
 
+def get_frequent_visitors():
+	with connection.cursor() as cursor:
+		cursor.execute(
+			"""
+			SELECT guest_name, company_name, total_visits
+			FROM get_frequent_visitors();
+			"""
+		)
+		rows = cursor.fetchall()
+
+	frequent_visitors = []
+	for guest_name, company_name, total_visits in rows:
+		frequent_visitors.append(
+			{
+				'guest_name': guest_name,
+				'company_name': company_name,
+				'total_visits': total_visits,
+			}
+		)
+
+	return frequent_visitors
+
+
 def get_today_visitor_log():
 	with connection.cursor() as cursor:
 		cursor.execute(

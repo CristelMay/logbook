@@ -86,6 +86,11 @@
     <!-- Frequent Visitors -->
     <div class="bg-white rounded-2xl p-6 shadow-md">
         <h3 class="text-xl font-semibold text-black mb-4">Frequent Visitors</h3>
+        {% if frequent_visitors_error %}
+        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            Frequent visitors query error: {{ frequent_visitors_error }}
+        </div>
+        {% endif %}
         <div class="rounded-xl overflow-hidden" style="border: 1px solid #e5e7eb;">
             <table class="w-full text-xs text-black border-collapse">
                 <thead>
@@ -96,21 +101,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for visitor in frequent_visitors %}
                     <tr style="border-top: 1px solid #e5e7eb;">
-                        <td class="px-4 py-3">John Smith</td>
-                        <td class="px-4 py-3">Acme Corp</td>
-                        <td class="px-4 py-3">24</td>
+                        <td class="px-4 py-3">{{ visitor.guest_name }}</td>
+                        <td class="px-4 py-3">{{ visitor.company_name }}</td>
+                        <td class="px-4 py-3">{{ visitor.total_visits }}</td>
                     </tr>
+                    {% empty %}
                     <tr style="border-top: 1px solid #e5e7eb;">
-                        <td class="px-4 py-3">Maria Santos</td>
-                        <td class="px-4 py-3">GlobalTech</td>
-                        <td class="px-4 py-3">18</td>
+                        <td colspan="3" class="px-4 py-3 text-center text-gray-500">No frequent visitors found.</td>
                     </tr>
-                    <tr style="border-top: 1px solid #e5e7eb;">
-                        <td class="px-4 py-3">Carlos Reyes</td>
-                        <td class="px-4 py-3">Innovate PH</td>
-                        <td class="px-4 py-3">15</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

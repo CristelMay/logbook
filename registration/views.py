@@ -18,6 +18,7 @@ from authentication.views import (
 from .models import (
     create_user_account,
     get_dashboard_stats,
+    get_frequent_visitors,
     get_guard_info,
     get_recent_checkouts,
     get_today_visitor_log,
@@ -54,6 +55,8 @@ def index(request):
     }
     recent_checkouts = []
     recent_checkouts_error = None
+    frequent_visitors = []
+    frequent_visitors_error = None
     today_visitor_log = []
     today_visitor_log_error = None
 
@@ -69,6 +72,12 @@ def index(request):
         logger.exception('Failed to fetch recent check-outs')
 
     try:
+        frequent_visitors = get_frequent_visitors()
+    except DatabaseError as exc:
+        frequent_visitors_error = str(exc)
+        logger.exception('Failed to fetch frequent visitors')
+
+    try:
         today_visitor_log = get_today_visitor_log()
     except DatabaseError as exc:
         today_visitor_log_error = str(exc)
@@ -81,6 +90,8 @@ def index(request):
             'stats': stats,
             'recent_checkouts': recent_checkouts,
             'recent_checkouts_error': recent_checkouts_error,
+            'frequent_visitors': frequent_visitors,
+            'frequent_visitors_error': frequent_visitors_error,
             'today_visitor_log': today_visitor_log,
             'today_visitor_log_error': today_visitor_log_error,
         },

@@ -530,8 +530,10 @@ SELECT
     ) AS guest_name,
     
     vc.company_name,
-    v.time_in,
-    v.time_out,
+
+    -- Convert to PH time (optional but recommended)
+    v.time_in AT TIME ZONE 'Asia/Manila',
+    v.time_out AT TIME ZONE 'Asia/Manila',
     
     -- duration formatted
     EXTRACT(HOUR FROM (v.time_out - v.time_in)) || 'h '
@@ -541,8 +543,15 @@ FROM visit_log v
 JOIN guest g ON v.guest_id = g.guest_id
 JOIN visitor_company vc ON v.company_id = vc.company_id
 
-WHERE v.time_out IS NOT NULL
+-- ✅ ONLY TODAY + CHECKED OUT
+WHERE 
+    v.time_out IS NOT NULL
+    AND v.date_of_visit = CURRENT_DATE
+
+-- ✅ LATEST CHECKOUT FIRST
 ORDER BY v.time_out DESC
+
+-- ✅ LIMIT FOR DASHBOARD
 LIMIT 5;
 $$;
 
@@ -558,16 +567,43 @@ RETURNS TABLE(
 LANGUAGE sql
 AS $$
 SELECT
-    g.firstname || ' ' || g.lastname,
-    vc.company_name,
+    -- ✅ Full name format with contact number for reference
+    TRIM(
+        g.firstname
+        || CASE 
+            WHEN g.middle_initial IS NOT NULL AND g.middle_initial <> '' 
+            THEN ' ' || g.middle_initial || '.' 
+            ELSE '' 
+           END
+        || ' ' || g.lastname
+        || CASE 
+            WHEN g.suffix IS NOT NULL AND g.suffix <> '' 
+            THEN ' ' || g.suffix 
+            ELSE '' 
+           END
+    ) AS guest_name,
+
+    -- ✅ Show one company (latest or arbitrary)
+    MAX(vc.company_name) AS company_name,
+
+    -- ✅ Count visits for each unique name + contact number combination
     COUNT(v.visit_id) AS total_visits
 
 FROM visit_log v
 JOIN guest g ON v.guest_id = g.guest_id
 JOIN visitor_company vc ON v.company_id = vc.company_id
 
-GROUP BY g.guest_id, vc.company_name
+-- ✅ GROUP BY unique person identifier (name fields + contact number)
+GROUP BY 
+    g.firstname,
+    g.middle_initial,
+    g.lastname,
+    g.suffix,
+    g.contact_number
+
+-- ✅ MOST FREQUENT FIRST (biggest to smallest)
 ORDER BY total_visits DESC
+
 LIMIT 5;
 $$;
 
