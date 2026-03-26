@@ -10,16 +10,12 @@
         background-size: cover;
         background-position: center;
     }
-</style>
+</style>    
 
 <div class="flex items-center justify-between mb-8">
-    <h2 class="text-4xl font-semibold text-gray-800">Welcome, {{ current_display_name }}</h2>
-    <div class="flex items-center gap-3">
-        <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">{{ current_full_name }}</p>
-            <p class="text-xs text-gray-400">@{{ current_username|default:'user' }}</p>
-        </div>
-        <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
+    <div>
+        <h2 class="text-4xl font-semibold text-gray-800">Welcome, {{ current_display_name }} 🎉</h2>
+        <p class="text-sm text-gray-400 mt-1">Here's an overview of today's visitor activity.</p>
     </div>
 </div>
 
@@ -43,10 +39,10 @@
 </div>
 
 <!-- Bottom Cards Row 1 -->
-<div class="grid grid-cols-2 gap-6 mb-6">
+<div class="grid grid-cols-5 gap-6 mb-6">
 
     <!-- Recent Check-outs -->
-    <div class="bg-white rounded-2xl p-6 shadow-md">
+    <div class="bg-white rounded-2xl p-6 shadow-md col-span-3">
         <h3 class="text-xl font-semibold text-black mb-4">Recent Check-outs</h3>
         {% if recent_checkouts_error %}
         <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
@@ -84,7 +80,7 @@
     </div>
 
     <!-- Frequent Visitors -->
-    <div class="bg-white rounded-2xl p-6 shadow-md">
+    <div class="bg-white rounded-2xl p-6 shadow-md col-span-2">
         <h3 class="text-xl font-semibold text-black mb-4">Frequent Visitors</h3>
         {% if frequent_visitors_error %}
         <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">

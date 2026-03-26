@@ -17,12 +17,15 @@ from authentication.views import (
 )
 from .models import (
     create_user_account,
+    get_active_visitors,
     get_dashboard_stats,
     get_frequent_visitors,
     get_guard_info,
     get_recent_checkouts,
     get_today_visitor_log,
+    get_user_profile,
     reset_user_password,
+    update_user_profile,
     username_exists,
     view_all_guards,
 )
@@ -39,7 +42,13 @@ def login_view(request):
 
 
 def change_password_view(request):
-    return change_password_handler(request)
+    user_id = request.session.get('user_id')
+    profile = get_user_profile(user_id) if user_id else None
+    return change_password_handler(
+        request,
+        template_name='registration/edit-profile.html',
+        extra_context={'profile': profile},
+    )
 
 
 def logout_view(request):
@@ -108,8 +117,22 @@ def lobby_dashboard(request):
             extra_context={'require_password_change': True},
         )
 
+    stats = {'total_today': 0, 'currently_inside': 0, 'checked_out_today': 0}
+    active_visitors = []
+    try:
+        stats = get_dashboard_stats()
+    except DatabaseError:
+        pass
+
+    try:
+        active_visitors = get_active_visitors()
+    except DatabaseError:
+        pass
+
     context = {
         'require_password_change': require_password_change,
+        'stats': stats,
+        'active_visitors': active_visitors,
     }
     return render(request, "registration/lobby-dashboard.html", context)
 
@@ -220,7 +243,7 @@ def create_personnel_view(request):
         'guards': guards,
         'created_account': created_account,
     }
-    return render(request, 'registration/create-personnel.html', context)
+    return render(request, 'registration/personnel-list.html', context)
 
 
 @role_required('admin')
@@ -297,5 +320,72 @@ def reset_guard_password_view(request, user_id):
         }
     )
 
+@role_required('admin', 'guard')
 def guestlist_view(request):
     return render(request, 'registration/guestlist.html')
+
+@role_required('admin', 'guard')
+def edit_profile_view(request, guest_id):
+    session_user_id = request.session.get('user_id')
+    session_role = request.session.get('role_name')
+
+    # Guards can only edit their own profile
+    if session_role == 'guard' and session_user_id != guest_id:
+        return render(request, '404.html', status=404)
+
+    profile = get_user_profile(guest_id)
+    if not profile:
+        return render(request, '404.html', status=404)
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        middle_initial = request.POST.get('middle_initial', '').strip() or None
+        suffix = request.POST.get('suffix', '').strip() or None
+        profile_pic_file = request.FILES.get('profile_pic')
+
+        if not username:
+            messages.error(request, 'Username is required.')
+        elif session_role != 'admin' and (not last_name or not first_name):
+            messages.error(request, 'First name and last name are required.')
+        elif username != profile['username'] and username_exists(username):
+            messages.error(request, f'Username "{username}" is already taken.')
+        else:
+            try:
+                profile_pic_path = None
+                if profile_pic_file:
+                    image_bytes, content_type = _validate_profile_image(profile_pic_file)
+                    profile_pic_path = upload_profile_image(
+                        file_bytes=image_bytes,
+                        original_name=profile_pic_file.name,
+                        content_type=content_type,
+                    )
+
+                update_user_profile(
+                    user_id=guest_id,
+                    username=username,
+                    last_name=last_name or profile['last_name'],
+                    first_name=first_name or profile['first_name'],
+                    middle_initial=middle_initial,
+                    suffix=suffix,
+                    profile_pic=profile_pic_path,
+                )
+
+                # Update session if editing own profile
+                if session_user_id == guest_id:
+                    request.session['username'] = username
+                    if profile_pic_path:
+                        request.session['profile_pic'] = profile_pic_path
+                    if first_name and last_name:
+                        request.session['full_name'] = f"{first_name.title()} {last_name.title()}"
+                        request.session['display_name'] = first_name.title()
+
+                messages.success(request, 'Profile updated successfully.')
+                profile = get_user_profile(guest_id)
+            except ValueError as exc:
+                messages.error(request, str(exc))
+            except DatabaseError:
+                messages.error(request, 'Unable to update profile right now. Please try again.')
+
+    return render(request, 'registration/edit-profile.html', {'profile': profile})

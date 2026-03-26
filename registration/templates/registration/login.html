@@ -34,7 +34,7 @@
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-black mb-1">Username</label>
-                        <input type="text" name="username" value="{{ form_data.username|default:'' }}" placeholder="e.g. juandelacruz"
+                        <input type="text" name="username" placeholder="e.g. juandelacruz"
                             class="w-full border-0 border-b border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#00459E]">
                     </div>
 
@@ -42,7 +42,7 @@
                         <label class="block text-sm font-medium text-black mb-1">Password</label>
                         <div class="relative">
                             <input id="password" type="password" name="password" placeholder="Enter your password"
-                                class="w-full border-0 border-b border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#00459E] pr-10">
+                                class="w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2 text-sm focus:outline-none focus:ring-0 focus:border-[#00459E] pr-10">
                             <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center text-gray-400 hover:text-gray-600">
                                 <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -55,6 +55,12 @@
                     <div class="text-right mb-8">
                         <a href="#" class="text-xs text-[#00459E] hover:underline">Forgot password?</a>
                     </div>
+
+                    {% if messages %}
+                    {% for message in messages %}
+                    <p class="text-xs text-red-500 mb-4 -mt-6">{{ message }}</p>
+                    {% endfor %}
+                    {% endif %}
 
                     <button type="submit" class="w-full bg-[#00459E] text-white font-semibold py-2 rounded-lg hover:bg-blue-800 transition text-sm">Login</button>
                 </form>

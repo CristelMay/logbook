@@ -28,11 +28,13 @@
             </nav>
             </div>
             <div class="flex items-center gap-4 py-5 pr-4">
-                <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-sm truncate">{{ current_full_name|default:'User' }}</p>
-                    <p class="text-xs text-white/70 truncate">@{{ current_username|default:'user' }}</p>
-                </div>
+                <a href="{% url 'registration:edit_profile' current_user_id %}" class="flex items-center gap-4 flex-1 min-w-0">
+                    <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm truncate">{{ current_full_name|default:'User' }}</p>
+                        <p class="text-xs text-white/70 truncate">@{{ current_username|default:'user' }}</p>
+                    </div>
+                </a>
                 <a href="{% url 'registration:logout' %}" class="flex-shrink-0 hover:text-white/70"><i data-lucide="log-out" class="w-5 h-5"></i></a>
             </div>
         </div>

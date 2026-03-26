@@ -5,27 +5,23 @@
 
 {% block topbar %}
 <div class="flex items-center justify-between mb-8">
-    <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 596.53px; height: 46.92px;">
-        <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-        <input type="text" placeholder="Search personnel..." class="text-sm w-full bg-transparent" style="outline: none; border: none; box-shadow: none;">
-    </div>
-    <div class="flex items-center gap-3">
-        <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">Admin</p>
-            <p class="text-xs text-gray-400">@admin.admin</p>
+    <div class="flex items-start gap-3">
+        <div>
+            <h2 class="text-4xl font-semibold text-gray-800">Lobby Personnel</h2>
+            <p class="text-sm text-gray-400 mt-1">Manage lobby guard accounts.</p>
         </div>
-        <img src="{% static 'images/default-profile.png' %}" class="w-10 h-10 rounded-full object-cover">
+        <button onclick="openCreateModal()" class="flex items-center justify-center w-8 h-8 rounded-full text-white hover:opacity-80 transition ml-2" style="background-color: #00459E;">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+        </button>
+    </div>
+    <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 360px; height: 46.92px;">
+        <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+        <input type="text" placeholder="Search personnel..." class="text-sm w-full bg-transparent" style="outline: #00459E; border: #00459E; box-shadow: none;">
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-8">
-    <h2 class="text-4xl font-semibold text-gray-800">Lobby Personnel</h2>
-    <button onclick="openCreateModal()" class="flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium hover:opacity-80 transition" style="background-color: #00459E;">
-        <i data-lucide="circle-plus" class="w-4 h-4"></i> New Personnel
-    </button>
-</div>
 
 {% if messages %}
 <div class="mb-6 space-y-2">
@@ -38,9 +34,9 @@
 {% endif %}
 
 <div class="grid grid-cols-3 gap-6">
-
+    <!-- Lobby Personnel Card -->
     {% for guard in guards %}
-    <div class="bg-white rounded-2xl p-6 shadow-sm flex items-center gap-4">
+    <div class="bg-white rounded-2xl p-6 shadow-md flex items-center gap-4">
         <img src="{% if guard.profile_pic %}{{ guard.profile_pic }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-16 h-16 rounded-full object-cover flex-shrink-0">
         <div>
             <p class="text-lg font-bold text-gray-800">{{ guard.full_name }}</p>
@@ -53,7 +49,6 @@
         No lobby guards found.
     </div>
     {% endfor %}
-
 </div>
 
 <!-- View Profile Modal -->

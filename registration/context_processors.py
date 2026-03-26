@@ -22,6 +22,7 @@ def auth_nav_context(request):
         profile_image_url = ''
 
     return {
+        'current_user_id': request.session.get('user_id'),
         'current_role': role_name,
         'current_username': username,
         'current_profile_image_url': profile_image_url,

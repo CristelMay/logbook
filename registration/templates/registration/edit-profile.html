@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block topbar %}
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h2 class="text-4xl font-semibold text-gray-800">Edit Profile</h2>
+        <p class="text-sm text-gray-400 mt-1">Update your personal information and account settings.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% for message in messages %}
+    {% if message.tags == 'success' %}
+    <div id="success-toast" style="position: fixed; top: 1.5rem; right: 1.5rem; z-index: 50; display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: 1rem; background-color: #22c55e; box-shadow: 0 10px 15px rgba(0,0,0,0.1); color: white; font-size: 0.875rem; font-weight: 500;">
+        <i data-lucide="circle-check" class="w-5 h-5 flex-shrink-0"></i>
+        {{ message }}
+    </div>
+    <script>
+        setTimeout(() => { const t = document.getElementById('success-toast'); if (t) t.remove(); }, 3000);
+    </script>
+    {% endif %}
+{% endfor %}
+
+<form method="POST" enctype="multipart/form-data" class="flex flex-col gap-6">
+    {% csrf_token %}
+    <div class="flex gap-6 items-stretch">
+
+        <!-- Column 1: Profile Card -->
+        <div class="bg-white rounded-2xl shadow-md w-64 flex-shrink-0 flex flex-col items-center px-6 py-8 text-center self-stretch">
+            <div class="relative mb-4">
+                <img id="preview-photo"
+                    src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}"
+                    class="w-36 h-36 rounded-full object-cover shadow">
+                <label for="upload-photo" id="camera-label" class="absolute bottom-0 right-0 w-8 h-8 rounded-full hidden items-center justify-center cursor-pointer shadow" style="background-color: #00459E;">
+                    <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+                </label>
+                <input type="file" id="upload-photo" name="profile_pic" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="previewPhoto(event)">
+            </div>
+            <p class="text-base font-bold text-gray-800">{{ current_full_name }}</p>
+            <p class="text-sm text-gray-400">@{{ current_username|default:'user' }}</p>
+        </div>
+
+        <!-- Column 2: Fields -->
+        <div class="flex flex-col gap-6 flex-1">
+
+            <div class="bg-white rounded-2xl shadow-md px-8 py-6">
+                <div class="flex items-center justify-between mb-5">
+                    <p class="text-base font-semibold text-gray-800">Personal Information</p>
+                    <button type="button" id="edit-btn" onclick="enableEdit()" class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium text-white transition" style="background-color: #00459E; border: 1px solid #00459E;">
+                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Edit
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">First Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="first_name" value="{{ profile.first_name }}" placeholder="e.g. Juan"
+                            class="field w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#00459E] read-only:bg-gray-50 read-only:text-gray-400 read-only:cursor-not-allowed" readonly required>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Last Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="last_name" value="{{ profile.last_name }}" placeholder="e.g. Dela Cruz"
+                            class="field w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#00459E] read-only:bg-gray-50 read-only:text-gray-400 read-only:cursor-not-allowed" readonly required>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Middle Initial</label>
+                        <input type="text" name="middle_initial" value="{{ profile.middle_initial }}" placeholder="e.g. M" maxlength="1"
+                            class="field w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#00459E] read-only:bg-gray-50 read-only:text-gray-400 read-only:cursor-not-allowed" readonly>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">Suffix</label>
+                        <input type="text" name="suffix" value="{{ profile.suffix }}" placeholder="e.g. Jr"
+                            class="field w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#00459E] read-only:bg-gray-50 read-only:text-gray-400 read-only:cursor-not-allowed" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md px-8 py-6">
+                <div class="flex items-center justify-between mb-5">
+                    <p class="text-base font-semibold text-gray-800">Account Information</p>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <label class="text-sm text-gray-600 w-36 flex-shrink-0">Username <span class="text-red-500">*</span></label>
+                        <input type="text" name="username" value="{{ profile.username }}" placeholder="e.g. juandelacruz"
+                            class="field flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#00459E] read-only:bg-gray-50 read-only:text-gray-400 read-only:cursor-not-allowed" readonly required>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <label class="text-sm text-gray-600 w-36 flex-shrink-0">Password</label>
+                        <button type="button" onclick="openChangePasswordModal()" class="px-5 py-2 rounded-full border text-sm font-medium text-gray-600 hover:bg-[#00459E] hover:text-white transition" style="border-color: #e5e7eb;">Change</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Actions (hidden until edit mode) -->
+    <div id="action-btns" class="hidden justify-end gap-3 pb-2">
+        <button type="button" onclick="cancelEdit()" class="px-6 py-2.5 rounded-full border text-sm font-medium text-gray-600 hover:bg-gray-50 transition" style="border-color: #e5e7eb;">Cancel</button>
+        <button type="submit" class="px-6 py-2.5 rounded-full text-sm font-medium text-white hover:opacity-80 transition" style="background-color: #00459E;">Save Changes</button>
+    </div>
+
+</form>
+
+<!-- Change Password Modal (outside main form) -->
+<div id="changePasswordModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Change Password</h3>
+            <button onclick="closeChangePasswordModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
+        {% if messages and show_change_password_modal %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            {% if message.tags != 'success' %}
+            <p class="rounded-lg bg-red-100 text-red-700 px-3 py-2 text-sm font-medium">{{ message }}</p>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form method="POST" action="{% url 'registration:change_password' %}" class="flex flex-col gap-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                <div class="relative">
+                    <input id="old-password" name="old_password" type="password" placeholder="Enter current password"
+                        class="w-full border border-gray-300 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[#00459E] pr-10">
+                    <button type="button" onclick="togglePass('old-password', 'eye-old')" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600">
+                        <i id="eye-old" data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <div class="relative">
+                    <input id="new-password" name="new_password" type="password" placeholder="Enter new password"
+                        class="w-full border border-gray-300 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[#00459E] pr-10">
+                    <button type="button" onclick="togglePass('new-password', 'eye-new')" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600">
+                        <i id="eye-new" data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <div class="relative">
+                    <input id="confirm-password" name="confirm_password" type="password" placeholder="Re-enter new password"
+                        class="w-full border border-gray-300 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[#00459E] pr-10">
+                    <button type="button" onclick="togglePass('confirm-password', 'eye-confirm')" class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600">
+                        <i id="eye-confirm" data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex gap-3 justify-end mt-2">
+                <button type="button" onclick="closeChangePasswordModal()" class="px-6 py-2.5 rounded-full border text-sm font-medium text-gray-600 hover:bg-gray-50 transition" style="border-color: #e5e7eb;">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-full text-sm font-medium text-white hover:opacity-80 transition" style="background-color: #00459E;">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if show_change_password_modal %}<span id="auto-open-modal"></span>{% endif %}
+
+<script>
+    const originalValues = {};
+
+    function enableEdit() {
+        document.querySelectorAll('.field').forEach(input => {
+            originalValues[input.name] = input.value;
+            input.readOnly = false;
+        });
+        document.getElementById('edit-btn').classList.add('invisible');
+        document.getElementById('camera-label').classList.remove('hidden');
+        document.getElementById('camera-label').classList.add('flex');
+        document.getElementById('action-btns').classList.remove('hidden');
+        document.getElementById('action-btns').classList.add('flex');
+    }
+
+    function cancelEdit() {
+        document.querySelectorAll('.field').forEach(input => {
+            input.value = originalValues[input.name] ?? input.value;
+            input.readOnly = true;
+        });
+        document.getElementById('edit-btn').classList.remove('invisible');
+        document.getElementById('camera-label').classList.add('hidden');
+        document.getElementById('camera-label').classList.remove('flex');
+        document.getElementById('action-btns').classList.add('hidden');
+        document.getElementById('action-btns').classList.remove('flex');
+        document.getElementById('preview-photo').src = "{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}";
+        document.getElementById('upload-photo').value = '';
+    }
+
+    function previewPhoto(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => document.getElementById('preview-photo').src = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function openChangePasswordModal() {
+        const modal = document.getElementById('changePasswordModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeChangePasswordModal() {
+        const modal = document.getElementById('changePasswordModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    function togglePass(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        lucide.createIcons();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('auto-open-modal')) openChangePasswordModal();
+    });
+</script>
+
+{% endblock %}

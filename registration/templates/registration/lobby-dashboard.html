@@ -13,13 +13,9 @@
 </style>
 
 <div class="flex items-center justify-between mb-8">
-    <h2 class="text-4xl font-semibold text-gray-800">Welcome, {{ current_display_name }}</h2>
-    <div class="flex items-center gap-3">
-        <div class="text-right">
-            <p class="font-semibold text-sm text-gray-800">{{ current_full_name }}</p>
-            <p class="text-xs text-gray-400">@{{ current_username|default:'user' }}</p>
-        </div>
-        <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
+    <div>
+        <h2 class="text-4xl font-semibold text-gray-800">Welcome, {{ current_display_name }} 🎉</h2>
+        <p class="text-sm text-gray-400 mt-1">Manage active visitors and process check-outs.</p>
     </div>
 </div>
 
@@ -27,17 +23,17 @@
 <div class="grid grid-cols-3 gap-12 mb-8">
     <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">
         <i data-lucide="users" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
-        <p class="text-5xl font-bold text-white mt-1 mb-2">12</p>
+        <p class="text-5xl font-bold text-white mt-1 mb-2">{{ stats.total_today|default:0 }}</p>
         <p class="text-lg font-semibold text-white">Today's Visitors</p>
     </div>
     <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">
         <i data-lucide="door-open" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
-        <p class="text-5xl font-bold text-white mt-1 mb-2">5</p>
+        <p class="text-5xl font-bold text-white mt-1 mb-2">{{ active_visitors|length }}</p>
         <p class="text-lg font-semibold text-white">Currently Inside</p>
     </div>
     <div class="stat-card-bg rounded-2xl px-8 py-10 shadow-sm transition-all duration-300 hover:scale-105 cursor-pointer relative overflow-hidden">
         <i data-lucide="log-out" class="absolute top-5 right-5 w-8 h-8 text-white"></i>
-        <p class="text-5xl font-bold text-white mt-1 mb-2">7</p>
+        <p class="text-5xl font-bold text-white mt-1 mb-2">{{ stats.checked_out_today|default:0 }}</p>
         <p class="text-lg font-semibold text-white">Checked Out</p>
     </div>
 </div>
@@ -57,42 +53,30 @@
                 </tr>
             </thead>
             <tbody>
+                {% for visitor in active_visitors %}
                 <tr style="border-top: 1px solid #e5e7eb;">
-                    <td class="px-4 py-3">John Smith</td>
-                    <td class="px-4 py-3">Acme Corp</td>
-                    <td class="px-4 py-3">Meeting</td>
-                    <td class="px-4 py-3">Mark Reyes</td>
-                    <td class="px-4 py-3">08:30 AM</td>
+                    <td class="px-4 py-3">{{ visitor.guest_name }}</td>
+                    <td class="px-4 py-3">{{ visitor.company_name }}</td>
+                    <td class="px-4 py-3">{{ visitor.purpose_name }}</td>
+                    <td class="px-4 py-3">{{ visitor.contact_person }}</td>
+                    <td class="px-4 py-3">{{ visitor.time_in }}</td>
                     <td class="px-4 py-3">
-                        <button onclick="openCheckoutModal('John Smith', '08:30 AM')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
+                        <button onclick="openCheckoutModal('{{ visitor.guest_name }}', '{{ visitor.time_in }}')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
                             <i data-lucide="log-out" class="w-3 h-3"></i> Check Out
                         </button>
                     </td>
                 </tr>
+                {% empty %}
                 <tr style="border-top: 1px solid #e5e7eb;">
-                    <td class="px-4 py-3">Maria Santos</td>
-                    <td class="px-4 py-3">GlobalTech</td>
-                    <td class="px-4 py-3">Interview</td>
-                    <td class="px-4 py-3">HR Dept</td>
-                    <td class="px-4 py-3">09:15 AM</td>
-                    <td class="px-4 py-3">
-                        <button onclick="openCheckoutModal('Maria Santos', '09:15 AM')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
-                            <i data-lucide="log-out" class="w-3 h-3"></i> Check Out
-                        </button>
+                    <td colspan="6" class="px-4 py-8 text-center">
+                        <div class="flex flex-col items-center gap-2">
+                            <i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i>
+                            <p class="text-sm font-semibold text-gray-400">No active visitors</p>
+                            <p class="text-xs text-gray-300">All visitors have checked out or none have arrived yet.</p>
+                        </div>
                     </td>
                 </tr>
-                <tr style="border-top: 1px solid #e5e7eb;">
-                    <td class="px-4 py-3">Carlos Reyes</td>
-                    <td class="px-4 py-3">Innovate PH</td>
-                    <td class="px-4 py-3">Meeting</td>
-                    <td class="px-4 py-3">Jane Lim</td>
-                    <td class="px-4 py-3">10:00 AM</td>
-                    <td class="px-4 py-3">
-                        <button onclick="openCheckoutModal('Carlos Reyes', '10:00 AM')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
-                            <i data-lucide="log-out" class="w-3 h-3"></i> Check Out
-                        </button>
-                    </td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
