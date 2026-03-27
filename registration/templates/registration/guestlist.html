@@ -58,7 +58,7 @@
             </thead>
             <tbody id="admin-tbody">
                 {% for log in guest_logs %}
-                <tr style="border-top: 1px solid #e5e7eb;" data-date="{{ log.date_raw }}">
+                <tr style="border-top: 1px solid #e5e7eb;" data-date="{{ log.date_raw }}" data-name="{{ log.guest_name|escapejs }}" data-company="{{ log.company_name|escapejs }}" data-contact="{{ log.contact_number|escapejs }}">
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
                             <span class="font-medium">{{ log.guest_name }}</span>
@@ -350,17 +350,25 @@
 
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-        const table = document.getElementById('admin-data-table');
-        let headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-        // Remove Status column (index 2)
-        headers = headers.filter((_, i) => i !== 2);
-        
+
+        const headers = ['Name', 'Company', 'Contact', 'Purpose', 'Contact Person', 'Date', 'Time In', 'Time Out', 'Assisted By'];
+
         let dataRows = getAllRows('admin-tbody')
             .filter(row => row.dataset.visible !== '0')
             .map(row => {
-                let cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
-                // Remove Status column (index 2)
-                return cells.filter((_, i) => i !== 2);
+                const tds = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
+                // tds: [0]GuestInfo [1]Purpose [2]ContactPerson [3]Status [4]Date [5]TimeIn [6]TimeOut [7]AssistedBy
+                return [
+                    row.dataset.name    || '',
+                    row.dataset.company || '',
+                    row.dataset.contact || '',
+                    tds[1], // Purpose
+                    tds[2], // Contact Person
+                    tds[4], // Date
+                    tds[5], // Time In
+                    tds[6], // Time Out
+                    tds[7], // Assisted By
+                ];
             });
 
         const now = new Date();

@@ -16,25 +16,40 @@
 	{% if messages %}
 	{% for message in messages %}
 	{% if message.tags == 'success' %}
-	<div id="success-modal" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4);">
-		<div class="bg-white rounded-3xl shadow-2xl px-16 py-14 flex flex-col items-center text-center" style="max-width: 36rem; width: 100%;">
-			<div class="flex items-center justify-center w-24 h-24 rounded-full mb-6" style="background-color: #f0fdf4;">
-				<svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #22c55e;">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+	<div id="success-modal" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.4s ease;">
+		<div class="bg-white rounded-3xl shadow-2xl p-20 flex flex-col items-center text-center" style="transform: scale(0.9); transition: transform 0.4s ease;">
+			<div class="flex items-center justify-center w-24 h-24 mb-6">
+				<svg viewBox="0 0 52 52" class="w-24 h-24">
+					<circle cx="26" cy="26" r="24" fill="none" stroke="#22c55e" stroke-width="2.5"
+						style="stroke-dasharray: 166; stroke-dashoffset: 166; animation: draw-circle 0.6s ease forwards;"/>
+					<path fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+						d="M14 27l8 8 16-16"
+						style="stroke-dasharray: 48; stroke-dashoffset: 48; animation: draw-check 0.4s ease 0.6s forwards;"/>
 				</svg>
 			</div>
 			<h2 class="text-2xl font-extrabold text-[#00459E] mb-2">IKSI GUEST REGISTRATION</h2>
 			<p class="text-lg font-semibold text-gray-700">Thank you for visiting Innodata!</p>
 		</div>
 	</div>
+	<style>
+		@keyframes draw-circle {
+			to { stroke-dashoffset: 0; }
+		}
+		@keyframes draw-check {
+			to { stroke-dashoffset: 0; }
+		}
+	</style>
 	<script>
+		const modal = document.getElementById('success-modal');
+		const card = modal.querySelector('div');
+		requestAnimationFrame(() => {
+			modal.style.opacity = '1';
+			card.style.transform = 'scale(1)';
+		});
 		setTimeout(() => {
-			const modal = document.getElementById('success-modal');
-			if (modal) {
-				modal.style.transition = 'opacity 0.5s ease';
-				modal.style.opacity = '0';
-				setTimeout(() => modal.remove(), 500);
-			}
+			modal.style.opacity = '0';
+			card.style.transform = 'scale(0.9)';
+			setTimeout(() => modal.remove(), 400);
 		}, 5000);
 	</script>
 	{% else %}
