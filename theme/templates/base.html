@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}logbook{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     {% tailwind_css %}
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
 
-    <aside id="sidebar" style="background-color: #00459E; transition: width 0.3s ease; width: 300px; min-width: 300px;" class="h-full flex-shrink-0 relative">
+    <aside id="sidebar" style="background-color: #00459E; transition: width 0.3s ease; width: 300px; min-width: 300px;" class="h-full flex-shrink-0 relative pl-2">
         <!-- Toggle button -->
         <button id="sidebar-toggle" onclick="toggleSidebar()"
             class="absolute -right-3.5 top-8 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-100 transition"
@@ -19,11 +19,12 @@
             <i id="toggle-icon" data-lucide="chevrons-left" class="w-4 h-4"></i>
         </button>
 
-        <div class="flex flex-col h-full pt-6 text-white justify-between overflow-hidden">
+        <div id="sidebar-inner" class="flex flex-col h-full pt-6 text-white justify-between overflow-hidden pl-1">
             <div>
                 <!-- Logo -->
-                <div class="pl-6 mb-12">
-                    <h1 id="sidebar-logo-text" class="text-2xl font-bold whitespace-nowrap overflow-hidden transition-all duration-300">logo</h1>
+                <div id="sidebar-logo" class="mb-12 flex items-center gap-3 px-4">
+                    <img src="{% static 'images/logo-no-text.png' %}" class="w-12 h-12 object-contain flex-shrink-0 bg-white rounded-full">
+                    <span id="sidebar-logo-text" class="text-2xl font-bold whitespace-nowrap" style="font-family: 'Inter', sans-serif;">Innodata</span>
                 </div>
                 <!-- Nav -->
                 <nav class="flex flex-col gap-2">
@@ -51,7 +52,7 @@
                 </nav>
             </div>
             <!-- Profile -->
-            <div class="flex items-center gap-4 py-5 pl-4 pr-4">
+            <div class="flex items-center gap-4 py-5 px-4 justify-center">
                 <a href="{% url 'registration:edit_profile' current_user_id %}" class="flex-shrink-0">
                     <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
                 </a>
@@ -81,21 +82,61 @@
     const sidebarProfileInfo = document.getElementById('sidebar-profile-info');
     let collapsed = false;
 
+    const sidebarLogo = document.getElementById('sidebar-logo');
+    const innerCol = document.getElementById('sidebar-inner');
+
+    // Set initial transition styles on labels
+    [...sidebarLabels, sidebarLogoText].forEach(el => {
+        el.style.transition = 'opacity 0.3s ease, max-width 0.5s ease';
+        el.style.overflow = 'hidden';
+        el.style.maxWidth = '200px';
+        el.style.opacity = '1';
+    });
+    sidebarProfileInfo.style.transition = 'opacity 0.3s ease, max-width 0.s ease';
+    sidebarProfileInfo.style.overflow = 'hidden';
+    sidebarProfileInfo.style.maxWidth = '200px';
+    sidebarProfileInfo.style.opacity = '1';
+    document.querySelectorAll('.sidebar-link').forEach(el => {
+        el.style.transition = 'padding-left 0.3s ease, justify-content 0.3s ease';
+    });
+
     function toggleSidebar() {
         collapsed = !collapsed;
         if (collapsed) {
-            sidebar.style.width = '72px';
-            sidebar.style.minWidth = '72px';
-            sidebarLabels.forEach(el => el.style.display = 'none');
-            sidebarLogoText.style.display = 'none';
-            sidebarProfileInfo.style.display = 'none';
+            sidebar.style.width = '88px';
+            sidebar.style.minWidth = '88px';
+            [...sidebarLabels, sidebarLogoText].forEach(el => {
+                el.style.maxWidth = '0';
+                el.style.opacity = '0';
+            });
+            sidebarProfileInfo.style.maxWidth = '0';
+            sidebarProfileInfo.style.opacity = '0';
+            sidebarLogo.style.justifyContent = 'center';
+            sidebarLogo.style.paddingLeft = '0';
+            sidebarLogo.style.paddingRight = '0';
+            document.querySelectorAll('.sidebar-link').forEach(el => {
+                el.style.paddingLeft = '0';
+                el.style.paddingRight = '0';
+                el.style.justifyContent = 'center';
+            });
             toggleIcon.setAttribute('data-lucide', 'chevrons-right');
         } else {
             sidebar.style.width = '300px';
             sidebar.style.minWidth = '300px';
-            sidebarLabels.forEach(el => el.style.display = '');
-            sidebarLogoText.style.display = '';
-            sidebarProfileInfo.style.display = 'flex';
+            [...sidebarLabels, sidebarLogoText].forEach(el => {
+                el.style.maxWidth = '200px';
+                el.style.opacity = '1';
+            });
+            sidebarProfileInfo.style.maxWidth = '200px';
+            sidebarProfileInfo.style.opacity = '1';
+            sidebarLogo.style.justifyContent = '';
+            sidebarLogo.style.paddingLeft = '';
+            sidebarLogo.style.paddingRight = '';
+            document.querySelectorAll('.sidebar-link').forEach(el => {
+                el.style.paddingLeft = '';
+                el.style.paddingRight = '';
+                el.style.justifyContent = '';
+            });
             toggleIcon.setAttribute('data-lucide', 'chevrons-left');
         }
         lucide.createIcons();
