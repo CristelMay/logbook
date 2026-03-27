@@ -11,31 +11,57 @@
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
 
-    <aside style="width: 300px; min-width: 300px; background-color: #00459E;" class="h-full">
-        <div class="flex flex-col h-full pt-6 pl-6 text-white justify-between">
+    <aside id="sidebar" style="background-color: #00459E; transition: width 0.3s ease; width: 300px; min-width: 300px;" class="h-full flex-shrink-0 relative">
+        <!-- Toggle button -->
+        <button id="sidebar-toggle" onclick="toggleSidebar()"
+            class="absolute -right-3.5 top-8 z-10 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-100 transition"
+            style="color: #00459E;">
+            <i id="toggle-icon" data-lucide="chevrons-left" class="w-4 h-4"></i>
+        </button>
+
+        <div class="flex flex-col h-full pt-6 text-white justify-between overflow-hidden">
             <div>
-            <h1 class="text-2xl font-bold mb-12">logo</h1>
-            <nav class="flex flex-col gap-2 pr-0">
-                {% if is_guard_role %}
-                <a href="{% url 'registration:lobby_dashboard' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'lobby_dashboard' %}bg-gray-100 text-[#0A305D]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="layout-dashboard" class="w-6 h-6"></i>Dashboard</a>
-                {% else %}
-                <a href="{% url 'registration:index' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'index' %}bg-gray-100 text-[#0A305D]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="layout-dashboard" class="w-6 h-6"></i>Dashboard</a>
-                {% endif %}
-                <a href="{% url 'registration:guestlist' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'guestlist' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="book-open" class="w-6 h-6"></i>Guest Log</a>
-                {% if is_admin_role %}
-                <a href="{% url 'registration:create_personnel' %}" class="flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'create_personnel' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}"><i data-lucide="users" class="w-6 h-6"></i>Lobby Personnel</a>
-                {% endif %}
-            </nav>
+                <!-- Logo -->
+                <div class="pl-6 mb-12">
+                    <h1 id="sidebar-logo-text" class="text-2xl font-bold whitespace-nowrap overflow-hidden transition-all duration-300">logo</h1>
+                </div>
+                <!-- Nav -->
+                <nav class="flex flex-col gap-2">
+                    {% if is_guard_role %}
+                    <a href="{% url 'registration:lobby_dashboard' %}" title="Dashboard" class="sidebar-link flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'lobby_dashboard' %}bg-gray-100 text-[#0A305D]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}">
+                        <i data-lucide="layout-dashboard" class="w-6 h-6 flex-shrink-0"></i>
+                        <span class="sidebar-label whitespace-nowrap">Dashboard</span>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'registration:index' %}" title="Dashboard" class="sidebar-link flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'index' %}bg-gray-100 text-[#0A305D]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}">
+                        <i data-lucide="layout-dashboard" class="w-6 h-6 flex-shrink-0"></i>
+                        <span class="sidebar-label whitespace-nowrap">Dashboard</span>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'registration:guestlist' %}" title="Guest Log" class="sidebar-link flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'guestlist' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}">
+                        <i data-lucide="book-open" class="w-6 h-6 flex-shrink-0"></i>
+                        <span class="sidebar-label whitespace-nowrap">Guest Log</span>
+                    </a>
+                    {% if is_admin_role %}
+                    <a href="{% url 'registration:create_personnel' %}" title="Lobby Personnel" class="sidebar-link flex items-center gap-4 pl-6 py-4 rounded-l-full font-semibold text-xl {% if request.resolver_match.url_name == 'create_personnel' %}bg-gray-100 text-[#00459E]{% else %}hover:bg-gray-100 hover:text-[#0A305D]{% endif %}">
+                        <i data-lucide="users" class="w-6 h-6 flex-shrink-0"></i>
+                        <span class="sidebar-label whitespace-nowrap">Lobby Personnel</span>
+                    </a>
+                    {% endif %}
+                </nav>
             </div>
-            <div class="flex items-center gap-4 py-5 pr-4">
-                <a href="{% url 'registration:edit_profile' current_user_id %}" class="flex items-center gap-4 flex-1 min-w-0">
-                    <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
-                    <div class="flex-1 min-w-0">
+            <!-- Profile -->
+            <div class="flex items-center gap-4 py-5 pl-4 pr-4">
+                <a href="{% url 'registration:edit_profile' current_user_id %}" class="flex-shrink-0">
+                    <img src="{% if current_profile_image_url %}{{ current_profile_image_url }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-10 h-10 rounded-full object-cover">
+                </a>
+                <div id="sidebar-profile-info" class="flex items-center gap-2 flex-1 min-w-0 overflow-hidden transition-all duration-300">
+                    <a href="{% url 'registration:edit_profile' current_user_id %}" class="flex flex-col flex-1 min-w-0">
                         <p class="font-semibold text-sm truncate">{{ current_full_name|default:'User' }}</p>
                         <p class="text-xs text-white/70 truncate">@{{ current_username|default:'user' }}</p>
-                    </div>
-                </a>
-                <a href="{% url 'registration:logout' %}" class="flex-shrink-0 hover:text-white/70"><i data-lucide="log-out" class="w-5 h-5"></i></a>
+                    </a>
+                    <a href="{% url 'registration:logout' %}" class="flex-shrink-0 hover:text-white/70"><i data-lucide="log-out" class="w-5 h-5"></i></a>
+                </div>
             </div>
         </div>
     </aside>
@@ -47,5 +73,33 @@
     </main>
 
 <script>lucide.createIcons();</script>
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleIcon = document.getElementById('toggle-icon');
+    const sidebarLabels = document.querySelectorAll('.sidebar-label');
+    const sidebarLogoText = document.getElementById('sidebar-logo-text');
+    const sidebarProfileInfo = document.getElementById('sidebar-profile-info');
+    let collapsed = false;
+
+    function toggleSidebar() {
+        collapsed = !collapsed;
+        if (collapsed) {
+            sidebar.style.width = '72px';
+            sidebar.style.minWidth = '72px';
+            sidebarLabels.forEach(el => el.style.display = 'none');
+            sidebarLogoText.style.display = 'none';
+            sidebarProfileInfo.style.display = 'none';
+            toggleIcon.setAttribute('data-lucide', 'chevrons-right');
+        } else {
+            sidebar.style.width = '300px';
+            sidebar.style.minWidth = '300px';
+            sidebarLabels.forEach(el => el.style.display = '');
+            sidebarLogoText.style.display = '';
+            sidebarProfileInfo.style.display = 'flex';
+            toggleIcon.setAttribute('data-lucide', 'chevrons-left');
+        }
+        lucide.createIcons();
+    }
+</script>
 </body>
 </html>

@@ -122,11 +122,11 @@
 					<input type="text" name="contact_name" value="{{ form_data.contact_name|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="e.g. Maria Santos" required>
 					{% if errors.contact_name %}<p class="mt-1 text-red-600 text-xs">{{ errors.contact_name }}</p>{% endif %}
 				</div>
-				<div class="sm:col-span-2">
+				<!-- <div class="sm:col-span-2">
 					<label class="block text-[21px] font-normal text-black mt-4 mb-1">Email Address</label>
 					<input type="email" name="email" value="{{ form_data.email|default:'' }}" class="w-full border-[2px] border-black rounded-[1.5rem] px-3 py-4 text-md mt-2" placeholder="juan@example.com">
 					{% if errors.email %}<p class="mt-1 text-red-600 text-xs">{{ errors.email }}</p>{% endif %}
-				</div>
+				</div> -->
 			</div>
 			<p class="mt-4 text-[13px] text-gray-500">Please note that all fields marked with an asterisk (<span class='text-red-500'>*</span>) are required.</p>
             <div class="flex w-full justify-end mt-8">

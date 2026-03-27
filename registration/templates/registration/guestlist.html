@@ -46,10 +46,9 @@
         <table class="w-full text-xs text-black border-collapse" id="admin-data-table">
             <thead>
                 <tr style="background-color: #F1F1F1;">
-                    <th class="text-left px-4 py-3 font-semibold">Name</th>
+                    <th class="text-left px-4 py-3 font-semibold">Guest Info</th>
                     <th class="text-left px-4 py-3 font-semibold">Purpose</th>
-                    <th class="text-left px-4 py-3 font-semibold">Company</th>
-                    <th class="text-left px-4 py-3 font-semibold">Contact</th>
+                    <th class="text-left px-4 py-3 font-semibold">Contact Person</th>
                     <th class="text-left px-4 py-3 font-semibold">Status</th>
                     <th class="text-left px-4 py-3 font-semibold">Date</th>
                     <th class="text-left px-4 py-3 font-semibold">Time In</th>
@@ -60,12 +59,19 @@
             <tbody id="admin-tbody">
                 {% for log in guest_logs %}
                 <tr style="border-top: 1px solid #e5e7eb;" data-date="{{ log.date_raw }}">
-                    <td class="px-4 py-3">{{ log.guest_name }}</td>
-                    <td class="px-4 py-3">{{ log.purpose_name }}</td>
-                    <td class="px-4 py-3">{{ log.company_name }}</td>
-                    <td class="px-4 py-3">{{ log.contact_number }}</td>
                     <td class="px-4 py-3">
-                        <span class="status-badge px-3 py-1 rounded-full text-white font-medium"
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium">{{ log.guest_name }}</span>
+                            <button onclick="openGuestInfoModal('{{ log.guest_name|escapejs }}', '{{ log.company_name|escapejs }}', '{{ log.contact_number|escapejs }}')"
+                                class="text-gray-400 hover:text-[#00459E] transition flex-shrink-0" title="View details">
+                                <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">{{ log.purpose_name }}</td>
+                    <td class="px-4 py-3">{{ log.contact_person }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="status-badge px-3 py-1 rounded-full text-white font-medium inline-block min-w-[90px] text-center"
                             style="background-color: {% if log.status == 'Checked In' %}#22c55e{% else %}#9ca3af{% endif %};">
                             {{ log.status }}
                         </span>
@@ -77,7 +83,7 @@
                 </tr>
                 {% endfor %}
                 <tr id="admin-empty-row" style="display: none;">
-                    <td colspan="9" class="px-4 py-12 text-center">
+                    <td colspan="8" class="px-4 py-12 text-center">
                         <div class="flex flex-col items-center gap-2">
                             <i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i>
                             <p class="text-sm font-semibold text-gray-400">No records found</p>
@@ -108,10 +114,9 @@
         <table class="w-full text-xs text-black border-collapse" id="lobby-data-table">
             <thead>
                 <tr style="background-color: #F1F1F1;">
-                    <th class="text-left px-4 py-3 font-semibold">Name</th>
+                    <th class="text-left px-4 py-3 font-semibold">Guest Info</th>
                     <th class="text-left px-4 py-3 font-semibold">Purpose</th>
-                    <th class="text-left px-4 py-3 font-semibold">Company</th>
-                    <th class="text-left px-4 py-3 font-semibold">Contact</th>
+                    <th class="text-left px-4 py-3 font-semibold">Contact Person</th>
                     <th class="text-left px-4 py-3 font-semibold">Status</th>
                     <th class="text-left px-4 py-3 font-semibold">Date</th>
                     <th class="text-left px-4 py-3 font-semibold">Time In</th>
@@ -121,26 +126,33 @@
             <tbody id="lobby-tbody">
                 {% for log in guest_logs %}
                 <tr style="border-top: 1px solid #e5e7eb;" data-date="{{ log.date_raw }}">
-                    <td class="px-4 py-3">{{ log.guest_name }}</td>
-                    <td class="px-4 py-3">{{ log.purpose_name }}</td>
-                    <td class="px-4 py-3">{{ log.company_name }}</td>
-                    <td class="px-4 py-3">{{ log.contact_number }}</td>
                     <td class="px-4 py-3">
-                        <span class="status-badge px-3 py-1 rounded-full text-white font-medium"
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium">{{ log.guest_name }}</span>
+                            <button onclick="openGuestInfoModal('{{ log.guest_name|escapejs }}', '{{ log.company_name|escapejs }}', '{{ log.contact_number|escapejs }}')"
+                                class="text-gray-400 hover:text-[#00459E] transition flex-shrink-0" title="View details">
+                                <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">{{ log.purpose_name }}</td>
+                    <td class="px-4 py-3">{{ log.contact_person }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="status-badge px-3 py-1 rounded-full text-white font-medium inline-block min-w-[90px] text-center"
                             style="background-color: {% if log.status == 'Checked In' %}#22c55e{% else %}#9ca3af{% endif %};">
                             {{ log.status }}
                         </span>
                     </td>
                     <td class="px-4 py-3">{{ log.date_of_visit }}</td>
                     <td class="px-4 py-3">{{ log.time_in }}</td>
-                    <td class="px-4 py-3">
+                    <td class="px-4 py-3 whitespace-nowrap">
                         {% if log.status == 'Checked In' %}
                         <button
                             data-name="{{ log.guest_name }}"
                             data-timein="{{ log.time_in }}"
                             data-visitid="{{ log.visit_id }}"
                             onclick="openCheckoutModal(this.dataset.name, this.dataset.timein, this.dataset.visitid)"
-                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80" style="background-color: #00459E;">
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-all duration-200 hover:opacity-80 whitespace-nowrap" style="background-color: #00459E;">
                             <i data-lucide="log-out" class="w-3 h-3"></i> Check Out
                         </button>
                         {% else %}
@@ -150,7 +162,7 @@
                 </tr>
                 {% endfor %}
                 <tr id="lobby-empty-row" style="display: none;">
-                    <td colspan="8" class="px-4 py-12 text-center">
+                    <td colspan="7" class="px-4 py-12 text-center">
                         <div class="flex flex-col items-center gap-2">
                             <i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i>
                             <p class="text-sm font-semibold text-gray-400">No records found</p>
@@ -171,6 +183,45 @@
             <button onclick="changePage('lobby', 1)" class="w-8 h-8 flex items-center justify-center rounded-lg border text-gray-500 hover:bg-gray-50" style="border-color: #e5e7eb;">
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Guest Info Modal -->
+<div id="guestInfoModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.4);">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Guest Details</h3>
+            <button onclick="closeGuestInfoModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb;" class="mb-6"></div>
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-4 p-2 rounded-xl">
+                <i data-lucide="user" class="w-9 h-9 flex-shrink-0" style="color: #00459E;"></i>
+                <div>
+                    <p class="text-xs text-gray-500">Full Name</p>
+                    <p class="font-semibold text-gray-800" id="guestinfo-name"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 p-2 rounded-xl">
+                <i data-lucide="building-2" class="w-9 h-9 flex-shrink-0" style="color: #00459E;"></i>
+                <div>
+                    <p class="text-xs text-gray-500">Company</p>
+                    <p class="font-semibold text-gray-800" id="guestinfo-company"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 p-2 rounded-xl">
+                <i data-lucide="phone" class="w-9 h-9 flex-shrink-0" style="color: #00459E;"></i>
+                <div>
+                    <p class="text-xs text-gray-500">Contact</p>
+                    <p class="font-semibold text-gray-800" id="guestinfo-contact"></p>
+                </div>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <button onclick="closeGuestInfoModal()" class="px-6 py-2.5 rounded-xl border text-sm font-medium text-gray-600 hover:bg-gray-50" style="border-color: #e5e7eb;">Close</button>
         </div>
     </div>
 </div>
@@ -301,15 +352,15 @@
         const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
         const table = document.getElementById('admin-data-table');
         let headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-        // Remove Status column (index 4)
-        headers = headers.filter((_, i) => i !== 4);
+        // Remove Status column (index 2)
+        headers = headers.filter((_, i) => i !== 2);
         
         let dataRows = getAllRows('admin-tbody')
             .filter(row => row.dataset.visible !== '0')
             .map(row => {
                 let cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
-                // Remove Status column (index 4)
-                return cells.filter((_, i) => i !== 4);
+                // Remove Status column (index 2)
+                return cells.filter((_, i) => i !== 2);
             });
 
         const now = new Date();
@@ -392,6 +443,21 @@
             doc.save('guest-list.pdf');
         };
         img.src = '/static/images/innodata-logo.png';
+    }
+
+    function openGuestInfoModal(name, company, contact) {
+        document.getElementById('guestinfo-name').textContent = name;
+        document.getElementById('guestinfo-company').textContent = company || '—';
+        document.getElementById('guestinfo-contact').textContent = contact || '—';
+        const modal = document.getElementById('guestInfoModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeGuestInfoModal() {
+        const modal = document.getElementById('guestInfoModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 
     function openCheckoutModal(name, timeIn, visitId) {
