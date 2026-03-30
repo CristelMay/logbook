@@ -138,7 +138,7 @@ def lobby_dashboard(request):
     }
     return render(request, "registration/lobby-dashboard.html", context)
 
-@role_required('admin', 'guard')
+# @role_required('admin', 'guard')
 def registration_view(request):
     return _handle_registration_submission(
         request,
