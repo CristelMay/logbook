@@ -39,11 +39,15 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production'
 ENV = os.getenv('ENV', 'development')  # "development" or "production"
 USE_DJANGO_MIGRATIONS = os.getenv('USE_DJANGO_MIGRATIONS', 'false').lower() == 'true'
 
-if ENV == 'production':
+if ENV == "production":
     DEBUG = False
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+    print("Running in production mode")
+    print(f"ENV value: Inside Production Block {ENV}")
+    ALLOWED_HOSTS = ['logbook-qj9f.onrender.com']
 else:
     DEBUG = True
+    print("Running in development mode")
+    print(f"ENV value: Inside Development Block {ENV}")
     ALLOWED_HOSTS = ['*']
 
 
