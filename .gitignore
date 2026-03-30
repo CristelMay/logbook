@@ -160,6 +160,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
+!theme/static_src/package-lock.json
 
 # IDE
 .vscode/
