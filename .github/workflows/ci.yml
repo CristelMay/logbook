@@ -81,12 +81,7 @@ jobs:
           node-version: "20"
 
       - name: Install frontend dependencies
-        run: |
-          if [ -f theme/static_src/package-lock.json ]; then
-            npm ci --prefix theme/static_src
-          else
-            npm install --prefix theme/static_src
-          fi
+        run: npm ci --prefix theme/static_src
 
       - name: Build Tailwind assets
         run: npm run build --prefix theme/static_src
