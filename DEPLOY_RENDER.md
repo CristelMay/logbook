@@ -47,6 +47,7 @@ git push -u origin feature/your-change
 Workflow file:
 
 - `.github/workflows/ci.yml`
+<!-- ADD CI WORKFLOW -->
 
 Trigger configuration:
 
@@ -97,13 +98,13 @@ Ensure Root Directory is repository root (same folder as `manage.py` and `requir
 ### Build Command
 
 ```bash
-pip install -r requirements.txt && npm ci --prefix theme/static_src && python manage.py tailwind build && python manage.py collectstatic --no-input
+pip install -r requirements.txt && npm ci --prefix theme/static_src && python manage.py tailwind build && python manage.py collectstatic --no-input 
 ```
 
 Optional (only if you want deploy-time migrations):
 
 ```bash
-python manage.py migrate --no-input
+python manage.py migrate --no-input 
 ```
 
 ### Start Command
