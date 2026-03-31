@@ -136,6 +136,7 @@ def change_password_handler(request, template_name, extra_context=None):
     context = extra_context or {}
     auth_state = get_auth_state(request)
     user_id = auth_state.get('user_id')
+    is_temp_password = bool(auth_state.get('is_temp_password', False))
 
     if not user_id:
         return redirect('registration:login')
@@ -145,44 +146,54 @@ def change_password_handler(request, template_name, extra_context=None):
         new_password = request.POST.get('new_password', '')
         confirm_password = request.POST.get('confirm_password', '')
 
-        if not old_password:
-            messages.error(request, 'Current password is required.')
+        if len(new_password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long.')
+        elif new_password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
         else:
-            try:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT 1 FROM users WHERE user_id = %s AND password_hash = crypt(%s, password_hash);",
-                        [user_id, old_password],
-                    )
-                    valid = cursor.fetchone()
-            except DatabaseError:
-                valid = None
+            valid = True
 
-            if not valid:
-                messages.error(request, 'Current password is incorrect.')
-            elif len(new_password) < 8:
-                messages.error(request, 'Password must be at least 8 characters long.')
-            elif new_password != confirm_password:
-                messages.error(request, 'Passwords do not match.')
-            else:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        UPDATE users
-                        SET password_hash = crypt(%s, gen_salt('bf')),
-                            is_tempPassword = FALSE
-                        WHERE user_id = %s;
-                        """,
-                        [new_password, user_id],
-                    )
+            if not is_temp_password:
+                if not old_password:
+                    messages.error(request, 'Current password is required.')
+                    valid = False
 
-                auth_state['is_temp_password'] = False
-                request.session['is_temp_password'] = False
+            if valid and not is_temp_password:
+                try:
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "SELECT 1 FROM users WHERE user_id = %s AND password_hash = crypt(%s, password_hash);",
+                            [user_id, old_password],
+                        )
+                        valid = cursor.fetchone() is not None
+                except DatabaseError:
+                    valid = False
 
-                from django.contrib import messages as django_messages
-                django_messages.success(request, 'Password changed successfully.')
+                if not valid:
+                    messages.error(request, 'Current password is incorrect.')
 
-                return redirect('registration:edit_profile', guest_id=user_id)
+            if valid:
+                try:
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            """
+                            UPDATE users
+                            SET password_hash = crypt(%s, gen_salt('bf')),
+                                is_tempPassword = FALSE
+                            WHERE user_id = %s;
+                            """,
+                            [new_password, user_id],
+                        )
+
+                    auth_state['is_temp_password'] = False
+                    request.session['is_temp_password'] = False
+
+                    from django.contrib import messages as django_messages
+                    django_messages.success(request, 'Password changed successfully.')
+
+                    return redirect('registration:edit_profile', guest_id=user_id)
+                except DatabaseError:
+                    messages.error(request, 'Unable to update password right now. Please try again.')
 
     context['show_change_password_modal'] = True
     return render(request, template_name, context)
