@@ -41,9 +41,20 @@ USE_DJANGO_MIGRATIONS = os.getenv('USE_DJANGO_MIGRATIONS', 'false').lower() == '
 
 if ENV == 'production':
     DEBUG = False
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+    print("Running in production mode")
+    print(f"ENV value: Inside Production Block {ENV}")
+    extra_hosts = os.getenv('ALLOWED_HOSTS', '')
+    parsed_extra_hosts = [host.strip() for host in extra_hosts.split(',') if host.strip()]
+    ALLOWED_HOSTS = [
+        'logbook-qj9f.onrender.com',
+        '.onrender.com',
+        'localhost',
+        '127.0.0.1',
+    ] + parsed_extra_hosts
 else:
     DEBUG = True
+    print("Running in development mode")
+    print(f"ENV value: Inside Development Block {ENV}")
     ALLOWED_HOSTS = ['*']
 
 
