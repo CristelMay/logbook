@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import shutil
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -212,14 +213,13 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-# NPM binary path (adjust for your OS)
-if ENV == 'production':
-    NPM_BIN_PATH = '/usr/bin/npm'
-else:
-    # Windows
-    NPM_BIN_PATH = 'C:/Program Files/nodejs/npm.cmd'
-    # For macOS/Linux, use:
-    # NPM_BIN_PATH = '/usr/local/bin/npm'
+# NPM binary path for django-tailwind commands.
+# Priority: explicit env var -> detected in PATH -> platform fallbacks.
+NPM_BIN_PATH = (
+    os.getenv('NPM_BIN_PATH')
+    or shutil.which('npm')
+    or ('C:/Program Files/nodejs/npm.cmd' if os.name == 'nt' else '/opt/bitnami/node/bin/npm')
+)
 
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in development
