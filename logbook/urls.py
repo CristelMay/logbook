@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.conf.urls.static import static
@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(url=reverse_lazy('registration:login'), permanent=False)),
     path('logbook/', include('registration.urls')),
+    path('googlefa5dec58f51994c7.html', TemplateView.as_view(template_name='googlefa5dec58f51994c7.html')),
 ]
 
 if 'django_browser_reload' in settings.INSTALLED_APPS:
