@@ -51,15 +51,6 @@ if ENV == 'production':
         'localhost',
         '127.0.0.1',
     ] + parsed_extra_hosts
-else:
-    DEBUG = True
-    print("Running in development mode")
-    print(f"ENV value: Inside Development Block {ENV}")
-    ALLOWED_HOSTS = ['*']
-
-if ENV == 'production':
-    DEBUG = False
-    # ... your existing code ...
 
     # Security headers
     SECURE_SSL_REDIRECT = True
@@ -71,6 +62,11 @@ if ENV == 'production':
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
+else:
+    DEBUG = True
+    print("Running in development mode")
+    print(f"ENV value: Inside Development Block {ENV}")
+    ALLOWED_HOSTS = ['*']
 
 
 # Application definition
