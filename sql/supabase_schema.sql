@@ -531,7 +531,7 @@ BEGIN
         COUNT(*) FILTER (WHERE date_of_visit = CURRENT_DATE)::INT,
         
         -- visitors currently inside
-        COUNT(*) FILTER (WHERE time_out IS NULL)::INT,
+        COUNT(*) FILTER (WHERE date_of_visit = CURRENT_DATE AND time_out IS NULL)::INT,
         
         -- visitors checked out today
         COUNT(*) FILTER (WHERE date_of_visit = CURRENT_DATE AND time_out IS NOT NULL)::INT,
