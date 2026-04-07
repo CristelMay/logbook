@@ -14,9 +14,10 @@
             <i data-lucide="plus" class="w-4 h-4"></i>
         </button>
     </div>
+    <!-- Search bar working -->
     <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 focus-within:border-[#00459E]" style="width: 360px; height: 46.92px;">
         <i data-lucide="search" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-        <input type="text" placeholder="Search personnel..." class="text-sm w-full bg-transparent" style="outline: #00459E; border: #00459E; box-shadow: none;">
+        <input id="search-input" type="text" placeholder="Search personnel..." class="text-sm w-full bg-transparent" style="outline: #00459E; border: #00459E; box-shadow: none;" oninput="filterGuards(this.value)">
     </div>
 </div>
 {% endblock %}
@@ -36,7 +37,7 @@
 <div class="grid grid-cols-3 gap-6">
     <!-- Lobby Personnel Card -->
     {% for guard in guards %}
-    <div class="bg-white rounded-2xl p-6 shadow-md flex items-center gap-4">
+    <div class="guard-card bg-white rounded-2xl p-6 shadow-md flex items-center gap-4" data-name="{{ guard.full_name|lower }}" data-username="{{ guard.username|lower }}">
         <img src="{% if guard.profile_pic %}{{ guard.profile_pic }}{% else %}{% static 'images/default-profile.png' %}{% endif %}" class="w-16 h-16 rounded-full object-cover flex-shrink-0">
         <div>
             <p class="text-lg font-bold text-gray-800">{{ guard.full_name }}</p>
@@ -44,11 +45,15 @@
             <button onclick="openProfileModal('{{ guard.user_id }}')" class="text-sm font-medium mt-1" style="color: #00459E;">View Profile</button>
         </div>
     </div>
-    {% empty %}
+    {% empty %}{% endfor %}
+    <div id="no-results" class="col-span-3 bg-white rounded-2xl p-6 shadow-sm text-sm text-gray-500 hidden">
+        No personnel match your search.
+    </div>
+    {% if not guards %}
     <div class="col-span-3 bg-white rounded-2xl p-6 shadow-sm text-sm text-gray-500">
         No lobby guards found.
     </div>
-    {% endfor %}
+    {% endif %}
 </div>
 
 <!-- View Profile Modal -->
@@ -314,6 +319,18 @@
         const modal = document.getElementById('tempPasswordModal');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+    }
+
+    function filterGuards(query) {
+        const q = query.toLowerCase();
+        const cards = document.querySelectorAll('.guard-card');
+        let visible = 0;
+        cards.forEach(card => {
+            const match = card.dataset.name.includes(q) || card.dataset.username.includes(q);
+            card.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        document.getElementById('no-results').classList.toggle('hidden', visible > 0 || cards.length === 0);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
