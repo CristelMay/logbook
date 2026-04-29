@@ -161,7 +161,7 @@ BEGIN
     )
     VALUES (
         p_username,
-        p_password_hash,
+        crypt(p_password_hash, gen_salt('bf')),
         p_role_id,
         new_person_id,
         TRUE,

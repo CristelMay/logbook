@@ -143,7 +143,8 @@ DATABASES = {
         'CONN_MAX_AGE': 0,
         'OPTIONS': {
             'client_encoding': 'UTF8',
-            'sslmode': os.getenv('DB_SSLMODE', 'require'),
+            # 'sslmode': os.getenv('DB_SSLMODE', 'require'),
+            'sslmode': os.getenv('require'),
             'connect_timeout': int(os.getenv('DB_CONNECT_TIMEOUT', '10')),
             'options': f"-c timezone={os.getenv('DB_TIMEZONE', 'Asia/Manila')}",
         },

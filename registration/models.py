@@ -75,15 +75,24 @@ def get_guard_info(user_id):
 
 def reset_user_password(user_id, new_password):
 	with connection.cursor() as cursor:
+		# Use change_user_password to hash and update the password
 		cursor.execute(
 			"""
-			SELECT reset_user_password(%s, %s);
+			SELECT change_user_password(%s, %s);
 			""",
 			[user_id, new_password],
 		)
-		row = cursor.fetchone()
+		# Set is_tempPassword to TRUE for reset password
+		cursor.execute(
+			"""
+			UPDATE users
+			SET is_tempPassword = TRUE
+			WHERE user_id = %s;
+			""",
+			[user_id],
+		)
 
-	return row[0] if row else None
+	return 'Temporary password has been set'
 
 
 def get_user_profile(user_id):

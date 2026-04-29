@@ -197,16 +197,16 @@ def create_personnel_view(request):
             messages.error(request, 'First name, last name, and username are required.')
         elif username_exists(username):
             messages.error(request, f'Username "{username}" is already taken. Please choose a different username.')
-        elif not profile_pic_file:
-            messages.error(request, 'Profile photo is required.')
         else:
             try:
-                image_bytes, content_type = _validate_profile_image(profile_pic_file)
-                profile_pic_path = upload_profile_image(
-                    file_bytes=image_bytes,
-                    original_name=profile_pic_file.name,
-                    content_type=content_type,
-                )
+                profile_pic_path = None
+                if profile_pic_file:
+                    image_bytes, content_type = _validate_profile_image(profile_pic_file)
+                    profile_pic_path = upload_profile_image(
+                        file_bytes=image_bytes,
+                        original_name=profile_pic_file.name,
+                        content_type=content_type,
+                    )
 
                 if not temporary_password.startswith('Temp@'):
                     temporary_password = _generate_temp_password()

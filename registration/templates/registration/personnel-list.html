@@ -236,11 +236,6 @@
         modal.classList.remove('flex');
     }
     function validateCreatePersonnelForm() {
-        const photoInput = document.getElementById('upload-photo');
-        if (!photoInput || !photoInput.files || photoInput.files.length === 0) {
-            alert('Profile photo is required. Please upload a picture before creating the account.');
-            return false;
-        }
         return true;
     }
     async function openProfileModal(userId) {
