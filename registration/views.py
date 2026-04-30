@@ -173,7 +173,8 @@ def _handle_registration_submission(request, success_redirect_name):
                     'Registration submitted successfully.'
                 )
                 return redirect(success_redirect_name)
-            except DatabaseError:
+            except DatabaseError as e:
+                logger.exception('Database error during guest registration')
                 context['errors']['non_field'] = (
                     'Unable to save guest visit right now. Please try again.'
                 )

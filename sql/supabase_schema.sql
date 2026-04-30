@@ -21,20 +21,19 @@ CREATE TABLE IF NOT EXISTS person (
     middle_initial VARCHAR(5),
     suffix VARCHAR(10)
 );
-
 CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role_id INT NOT NULL,
-    person_id INT NOT NULL,
+         time_in TEXT,
+         time_out TEXT,
     profile_pic TEXT,   
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    is_tempPassword BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN,
+    is_temppassword BOOLEAN,
     CONSTRAINT fk_users_role FOREIGN KEY (role_id)
         REFERENCES role(role_id)
-        ON DELETE RESTRICT,
+        ON DELETE CASCADE,
     CONSTRAINT fk_users_person FOREIGN KEY (person_id)
         REFERENCES person(person_id)
         ON DELETE CASCADE
@@ -62,37 +61,34 @@ CREATE TABLE IF NOT EXISTS employee (
     full_name VARCHAR(150) UNIQUE NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS visit_purpose (
     purpose_id SERIAL PRIMARY KEY,
     purpose_name VARCHAR(150) UNIQUE NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS visit_log (
     visit_id SERIAL PRIMARY KEY,
     date_of_visit DATE NOT NULL DEFAULT CURRENT_DATE,
-    time_in TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    time_out TIMESTAMPTZ,
+    time_out TIMESTAMP,
     guest_id INT NOT NULL,
     company_id INT NOT NULL,
     contact_id INT NOT NULL,
     purpose_id INT NOT NULL,
-    user_id INT NOT NULL,
+    user_id INT,
     checkout_by INT,
     CONSTRAINT fk_visit_guest FOREIGN KEY (guest_id)
         REFERENCES guest(guest_id)
         ON DELETE CASCADE,
     CONSTRAINT fk_visit_company FOREIGN KEY (company_id)
         REFERENCES visitor_company(company_id)
-        ON DELETE RESTRICT,
+        ON DELETE CASCADE,
     CONSTRAINT fk_visit_contact FOREIGN KEY (contact_id)
         REFERENCES employee(contact_id)
-        ON DELETE RESTRICT,
+        ON DELETE CASCADE,
     CONSTRAINT fk_visit_purpose FOREIGN KEY (purpose_id)
         REFERENCES visit_purpose(purpose_id)
-        ON DELETE RESTRICT,
+        ON DELETE CASCADE,
     CONSTRAINT fk_visit_user FOREIGN KEY (user_id)
         REFERENCES users(user_id)
-        ON DELETE RESTRICT,
+        ON DELETE CASCADE,
     CONSTRAINT fk_visit_checkout_by FOREIGN KEY (checkout_by)
         REFERENCES users(user_id)
         ON DELETE SET NULL
@@ -134,12 +130,13 @@ ON CONFLICT (purpose_name) DO NOTHING;
 
 CREATE OR REPLACE FUNCTION create_user_account(
     p_username VARCHAR,
-    p_password_hash TEXT,
+    p_password TEXT,
     p_role_id INT,
     p_lastname VARCHAR,
     p_firstname VARCHAR,
     p_middle_initial VARCHAR,
-    p_suffix VARCHAR
+    p_suffix VARCHAR,
+    p_profile_pic TEXT
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -156,14 +153,16 @@ BEGIN
         password_hash,
         role_id,
         person_id,
+        profile_pic,
         is_active,
         is_tempPassword
     )
     VALUES (
         p_username,
-        crypt(p_password_hash, gen_salt('bf')),
+        crypt(p_password, gen_salt('bf')),
         p_role_id,
         new_person_id,
+        p_profile_pic,
         TRUE,
         TRUE
     );
@@ -178,6 +177,7 @@ RETURNS TABLE(
     user_id INT,
     username VARCHAR,
     role_name VARCHAR,
+    profile_pic TEXT,
     is_active BOOLEAN,
     is_tempPassword BOOLEAN
 )
@@ -189,6 +189,7 @@ BEGIN
         u.user_id,
         u.username,
         r.role_name,
+        u.profile_pic,
         u.is_active,
         u.is_tempPassword
     FROM users u
@@ -214,23 +215,32 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION create_guest_visit(
+    -- Guest info
     p_lastname VARCHAR,
-    p_firstname VARCHAR,
+    p_firstname VARCHAR, 
     p_middle_initial VARCHAR,
     p_suffix VARCHAR,
     p_contact VARCHAR,
     p_email VARCHAR,
-    p_company_id INT,
-    p_contact_id INT,
-    p_purpose_id INT,
-    p_user_id INT
+    -- Company
+    p_company_name VARCHAR,
+    -- Employee
+    p_contact_name VARCHAR,
+    -- Purpose
+    p_purpose_name VARCHAR
 )
-RETURNS VOID
+RETURNS INT
 LANGUAGE plpgsql
 AS $$
 DECLARE
     new_guest_id INT;
+    new_company_id INT;
+    new_contact_id INT;
+    new_purpose_id INT;
+    new_visit_id INT;
 BEGIN
+
+-- Insert guest
     INSERT INTO guest(
         lastname,
         firstname,
@@ -249,20 +259,54 @@ BEGIN
     )
     RETURNING guest_id INTO new_guest_id;
 
-    INSERT INTO visit_log(
-        guest_id,
-        company_id,
-        contact_id,
-        purpose_id,
-        user_id
-    )
-    VALUES(
-        new_guest_id,
-        p_company_id,
-        p_contact_id,
-        p_purpose_id,
-        p_user_id
-    );
+-- Insert company (always new)
+IF p_company_name IS NULL THEN
+    RAISE EXCEPTION 'Company is required';
+END IF;
+
+INSERT INTO visitor_company(company_name)
+VALUES (p_company_name)
+RETURNING company_id INTO new_company_id;
+
+-- Insert employee (always new)
+IF p_contact_name IS NULL THEN
+    RAISE EXCEPTION 'Employee is required';
+END IF;
+
+INSERT INTO employee(full_name)
+VALUES (p_contact_name)
+RETURNING contact_id INTO new_contact_id;
+
+-- Insert purpose (always new)
+IF p_purpose_name IS NULL THEN
+    RAISE EXCEPTION 'Purpose is required';
+END IF;
+
+INSERT INTO visit_purpose(purpose_name)
+VALUES (p_purpose_name)
+RETURNING purpose_id INTO new_purpose_id;
+
+-- Insert visit log
+INSERT INTO visit_log(
+    date_of_visit,
+    time_in,
+    guest_id,
+    company_id,
+    contact_id,
+    purpose_id
+)
+VALUES(
+    CURRENT_DATE,
+    CURRENT_TIMESTAMP,
+    new_guest_id,
+    new_company_id,
+    new_contact_id,
+    new_purpose_id
+)
+RETURNING visit_id INTO new_visit_id;
+
+-- Return visit_id
+RETURN new_visit_id;
 END;
 $$;
 
@@ -359,8 +403,8 @@ SELECT
 
     v.date_of_visit,
 
-    v.time_in AT TIME ZONE 'Asia/Manila',
-    v.time_out AT TIME ZONE 'Asia/Manila',
+    v.time_in,
+    v.time_out,
     
     -- ✅ Status: Checked In or Checked Out with explicit type casting
     CASE
@@ -407,8 +451,8 @@ RETURNS TABLE(
     guest_name TEXT,
     company_name VARCHAR,
     purpose_name VARCHAR,
-    time_in TIMESTAMPTZ,
-    time_out TIMESTAMPTZ
+time_in TIMESTAMP,
+time_out TIMESTAMP
 )
 LANGUAGE plpgsql
 AS $$
@@ -573,9 +617,9 @@ SELECT
     
     vc.company_name,
 
-    -- Convert to PH time (optional but recommended)
-    v.time_in AT TIME ZONE 'Asia/Manila',
-    v.time_out AT TIME ZONE 'Asia/Manila',
+    -- Convert to PH time with consistent formatting (matching 2nd query)
+    TO_CHAR(v.time_in AT TIME ZONE 'Asia/Manila', 'HH12:MI AM'),
+    TO_CHAR(v.time_out AT TIME ZONE 'Asia/Manila', 'HH12:MI AM'),
     
     -- duration formatted
     EXTRACT(HOUR FROM (v.time_out - v.time_in)) || 'h '

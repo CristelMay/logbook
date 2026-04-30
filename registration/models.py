@@ -11,6 +11,42 @@ from zoneinfo import ZoneInfo
 MANILA_TZ = ZoneInfo('Asia/Manila')
 
 
+def _format_manila_time(value):
+	"""Format datetime as time string."""
+	if not value:
+		return ''
+
+	if not hasattr(value, 'strftime'):
+		return str(value)
+
+	# Just format directly - datetimes from DB are already in Manila time
+	return value.strftime('%I:%M %p')
+
+
+def _format_manila_date(value):
+	"""Format date/datetime as date string."""
+	if not value:
+		return ''
+
+	if not hasattr(value, 'strftime'):
+		return str(value)
+
+	# Just format directly - datetimes from DB are already in Manila time
+	return value.strftime('%b %d, %Y')
+
+
+def _format_manila_date_raw(value):
+	"""Format date/datetime as ISO date string."""
+	if not value:
+		return ''
+
+	if not hasattr(value, 'strftime'):
+		return str(value)
+
+	# Just format directly - datetimes from DB are already in Manila time
+	return value.strftime('%Y-%m-%d')
+
+
 def username_exists(username):
 	with connection.cursor() as cursor:
 		cursor.execute(
@@ -195,10 +231,10 @@ def get_guest_logs():
 			'contact_person': contact_person,
 			'purpose_name': purpose_name,
 			'guard_name': guard_name or '—',
-			'date_raw': date_of_visit.strftime('%Y-%m-%d') if date_of_visit else '',
-			'date_of_visit': date_of_visit.strftime('%b %d, %Y') if date_of_visit else '',
-			'time_in': time_in.strftime('%I:%M %p') if time_in else '',
-			'time_out': time_out.strftime('%I:%M %p') if time_out else '—',
+			'date_raw': _format_manila_date_raw(date_of_visit),
+			'date_of_visit': _format_manila_date(date_of_visit),
+			'time_in': _format_manila_time(time_in),
+			'time_out': _format_manila_time(time_out) or '—',
 			'status': status,
 			'assisted_by': assisted_by or '—',
 		})
@@ -212,9 +248,17 @@ def checkout_visit(visit_id, user_id=None):
 	with connection.cursor() as cursor:
 		cursor.execute(
 			"""
-			SELECT add_guest_timeout(%s, %s);
+			UPDATE visit_log
+			SET time_out = %s,
+			    checkout_by = %s
+			WHERE visit_id = %s
+			  AND time_out IS NULL;
 			""",
-			[visit_id, user_id],
+			[
+				timezone.localtime(timezone.now()).replace(tzinfo=None),
+				user_id,
+				visit_id,
+			],
 		)
 
 
@@ -238,7 +282,7 @@ def get_active_visitors():
 			'company_name': company_name,
 			'purpose_name': purpose_name,
 			'contact_person': contact_person,
-			'time_in': time_in.strftime('%I:%M %p') if time_in else '',
+			'time_in': _format_manila_time(time_in),
 		})
 
 	return active_visitors
@@ -280,20 +324,6 @@ def get_recent_checkouts():
 			"""
 		)
 		rows = cursor.fetchall()
-
-	def _format_manila_time(value):
-		if not value:
-			return ''
-
-		if not hasattr(value, 'strftime'):
-			return str(value)
-
-		datetime_value = value
-		if timezone.is_naive(datetime_value):
-			datetime_value = timezone.make_aware(datetime_value, timezone=ZoneInfo('UTC'))
-
-		datetime_value = timezone.localtime(datetime_value, MANILA_TZ)
-		return datetime_value.strftime('%I:%M %p')
 
 	recent_checkouts = []
 	for guest_name, company_name, time_in, time_out, duration in rows:
@@ -354,8 +384,8 @@ def get_today_visitor_log():
 				'purpose_name': purpose_name,
 				'contact_number': contact_number,
 				'contact_person': contact_person,
-				'time_in': time_in,
-				'time_out': time_out,
+				'time_in': _format_manila_time(time_in),
+				'time_out': _format_manila_time(time_out) or '—',
 			}
 		)
 
