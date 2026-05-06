@@ -145,7 +145,7 @@
         <form id="create-personnel-form" method="POST" enctype="multipart/form-data" class="flex gap-6" onsubmit="return validateCreatePersonnelForm()">
             {% csrf_token %}
             <!-- Column 1: Photo -->
-            <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <!-- <div class="flex flex-col items-center gap-2 flex-shrink-0">
                 <div class="relative">
                     <img id="preview-photo" src="{% static 'images/default-profile.png' %}" class="w-36 h-36 rounded-full object-cover">
                     <label for="upload-photo" class="absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer" style="background-color: #00459E;">
@@ -154,7 +154,7 @@
                     <input type="file" id="upload-photo" name="profile_pic" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="previewPhoto(event)">
                 </div>
                 <p class="text-xs text-gray-400">Upload Photo</p>
-            </div>
+            </div> -->
 
             <!-- Column 2: Fields -->
             <div class="flex flex-col gap-4 flex-1">

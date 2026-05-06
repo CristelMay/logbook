@@ -1,4 +1,4 @@
 @echo off
-cd /d C:\Users\jerez\logbook
-call .venv\Scripts\activate.bat
-waitress-serve --listen=0.0.0.0:8000 logbook.wsgi:application
+cd /d "c:\Users\jerez\new-logbook\logbook"
+call .venv\Scripts\activate
+start "Logbook Server" cmd /k ".venv\Scripts\python -m waitress --port=8000 logbook.wsgi:application"
