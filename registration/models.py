@@ -47,17 +47,30 @@ def _format_manila_date_raw(value):
 	return value.strftime('%Y-%m-%d')
 
 
-def username_exists(username):
+def username_exists(username, exclude_user_id=None):
 	with connection.cursor() as cursor:
-		cursor.execute(
-			"""
-			SELECT 1
-			FROM users
-			WHERE lower(username) = lower(%s)
-			LIMIT 1;
-			""",
-			[username],
-		)
+		if exclude_user_id is None:
+			cursor.execute(
+				"""
+				SELECT 1
+				FROM users
+				WHERE lower(username) = lower(%s)
+				LIMIT 1;
+				""",
+				[username],
+			)
+		else:
+			cursor.execute(
+				"""
+				SELECT 1
+				FROM users
+				WHERE lower(username) = lower(%s)
+				  AND user_id <> %s
+				LIMIT 1;
+				""",
+				[username, exclude_user_id],
+			)
+
 		return cursor.fetchone() is not None
 
 

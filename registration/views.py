@@ -1,4 +1,4 @@
-from django.db import DatabaseError, IntegrityError
+from django.db import DatabaseError, IntegrityError, connection, transaction
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -362,6 +362,8 @@ def edit_profile_view(request, guest_id):
     if not profile:
         return render(request, '404.html', status=404)
 
+    show_change_password_modal = False
+
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         last_name = request.POST.get('last_name', '').strip()
@@ -369,14 +371,54 @@ def edit_profile_view(request, guest_id):
         middle_initial = request.POST.get('middle_initial', '').strip() or None
         suffix = request.POST.get('suffix', '').strip() or None
         profile_pic_file = request.FILES.get('profile_pic')
+        old_password = request.POST.get('old_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        password_change_requested = any([old_password, new_password, confirm_password])
+        has_errors = False
+
+        if password_change_requested:
+            show_change_password_modal = True
 
         if not username:
             messages.error(request, 'Username is required.')
+            has_errors = True
         elif session_role != 'admin' and (not last_name or not first_name):
             messages.error(request, 'First name and last name are required.')
-        elif username != profile['username'] and username_exists(username):
+            has_errors = True
+        elif username != profile['username'] and username_exists(username, exclude_user_id=guest_id):
             messages.error(request, f'Username "{username}" is already taken.')
-        else:
+            has_errors = True
+
+        if password_change_requested:
+            if len(new_password) < 8:
+                messages.error(request, 'Password must be at least 8 characters long.')
+                has_errors = True
+            elif new_password != confirm_password:
+                messages.error(request, 'Passwords do not match.')
+                has_errors = True
+            else:
+                is_temp_password = bool(request.session.get('is_temp_password', False))
+                if not is_temp_password and not old_password:
+                    messages.error(request, 'Current password is required.')
+                    has_errors = True
+
+                if not has_errors and not is_temp_password:
+                    try:
+                        with connection.cursor() as cursor:
+                            cursor.execute(
+                                "SELECT 1 FROM users WHERE user_id = %s AND password_hash = crypt(%s, password_hash);",
+                                [guest_id, old_password],
+                            )
+                            if cursor.fetchone() is None:
+                                messages.error(request, 'Current password is incorrect.')
+                                has_errors = True
+                    except DatabaseError:
+                        messages.error(request, 'Unable to validate current password right now. Please try again.')
+                        has_errors = True
+
+        if not has_errors:
             try:
                 profile_pic_path = None
                 if profile_pic_file:
@@ -387,15 +429,28 @@ def edit_profile_view(request, guest_id):
                         content_type=content_type,
                     )
 
-                update_user_profile(
-                    user_id=guest_id,
-                    username=username,
-                    last_name=last_name or profile['last_name'],
-                    first_name=first_name or profile['first_name'],
-                    middle_initial=middle_initial,
-                    suffix=suffix,
-                    profile_pic=profile_pic_path,
-                )
+                with transaction.atomic():
+                    update_user_profile(
+                        user_id=guest_id,
+                        username=username,
+                        last_name=last_name or profile['last_name'],
+                        first_name=first_name or profile['first_name'],
+                        middle_initial=middle_initial,
+                        suffix=suffix,
+                        profile_pic=profile_pic_path,
+                    )
+
+                    if password_change_requested:
+                        with connection.cursor() as cursor:
+                            cursor.execute(
+                                """
+                                UPDATE users
+                                SET password_hash = crypt(%s, gen_salt('bf')),
+                                    is_tempPassword = FALSE
+                                WHERE user_id = %s;
+                                """,
+                                [new_password, guest_id],
+                            )
 
                 # Update session if editing own profile
                 if session_user_id == guest_id:
@@ -405,12 +460,30 @@ def edit_profile_view(request, guest_id):
                     if first_name and last_name:
                         request.session['full_name'] = f"{first_name.title()} {last_name.title()}"
                         request.session['display_name'] = first_name.title()
+                    if password_change_requested:
+                        request.session['is_temp_password'] = False
 
-                messages.success(request, 'Profile updated successfully.')
+                if password_change_requested:
+                    messages.success(request, 'Profile and password updated successfully.')
+                else:
+                    messages.success(request, 'Profile updated successfully.')
+
+                show_change_password_modal = False
                 profile = get_user_profile(guest_id)
             except ValueError as exc:
                 messages.error(request, str(exc))
+                if password_change_requested:
+                    show_change_password_modal = True
             except DatabaseError:
                 messages.error(request, 'Unable to update profile right now. Please try again.')
+                if password_change_requested:
+                    show_change_password_modal = True
 
-    return render(request, 'registration/edit-profile.html', {'profile': profile})
+    return render(
+        request,
+        'registration/edit-profile.html',
+        {
+            'profile': profile,
+            'show_change_password_modal': show_change_password_modal,
+        },
+    )
